@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">MiTiendita</string>
+
+    <string name="registro_titulo">Registro de Usuario</string>
+
+    <string name="hint_nombre">Nombre</string>
+    <string name="hint_apellido">Apellido</string>
+    <string name="hint_correo">Correo</string>
+    <string name="hint_telefono">Teléfono</string>
+    <string name="hint_direccion">Dirección</string>
+    <string name="hint_edad">Edad</string>
+    <string name="opcion_hombre">Hombre</string>
+    <string name="opcion_mujer">Mujer</string>
+    <string name="btn_registrar">Registrar</string>
+</resources>

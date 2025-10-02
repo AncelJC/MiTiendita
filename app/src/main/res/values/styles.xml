@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tema principal de la app (ya lo tienes) -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Personalización global -->
+    </style>
+
+    <!-- 🔹 Estilo personalizado para el botón "Agregar producto" -->
+    <style name="BotonAgregarProducto" parent="Widget.MaterialComponents.Button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="backgroundTint">@color/purple_500</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:layout_marginTop">12dp</item>
+    </style>
+
+
+</resources>
