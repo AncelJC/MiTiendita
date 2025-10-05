@@ -19,9 +19,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MiTiendita">
         <activity
+            android:name=".listaProductos"
+            android:exported="false" />
+        <activity
+            android:name=".Home"
+            android:exported="false"
+            android:label="@string/title_activity_home"
+            android:theme="@style/Theme.MiTiendita.NoActionBar" />
+        <activity
             android:name=".ListaCompras"
-            android:windowSoftInputMode="adjustPan"
-            android:exported="true" />
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".Productos"
             android:exported="false" />
