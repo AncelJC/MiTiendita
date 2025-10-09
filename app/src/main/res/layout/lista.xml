@@ -25,6 +25,12 @@
             android:gravity="center"
             android:layout_marginBottom="16dp"/>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:text="Seleccione un producto para eliminarlo"
+            android:textStyle="bold"
+            android:layout_height="wrap_content"/>
+
         <!-- Lista -->
         <ListView
             android:id="@+id/lvCompras"

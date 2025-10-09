@@ -1,5 +1,6 @@
 package com.example.mitiendita
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.widget.*
@@ -33,9 +34,9 @@ class ListaCompras : AppCompatActivity() {
         btnHistorial = findViewById(R.id.btnHistorial)
         btnAgregar = findViewById(R.id.btnAgregar)
 
-        // Adaptador
-        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, listaCompras)
-        lvCompras.adapter = adapter
+        // Inicializar Adaptador
+        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, listaCompras) //Diseño de cada elemento de lista
+        lvCompras.adapter = adapter //datos a utilizar
 
         // Evento: agregar productos
         ivAgregar.setOnClickListener {
@@ -48,6 +49,8 @@ class ListaCompras : AppCompatActivity() {
                 Toast.makeText(this, "Escribe un producto", Toast.LENGTH_SHORT).show()
             }
         }
+
+
 
         // Evento: historial (ejemplo)
         btnHistorial.setOnClickListener {
@@ -71,5 +74,31 @@ class ListaCompras : AppCompatActivity() {
             Toast.makeText(this, "Agregar", Toast.LENGTH_SHORT).show()
         }
 
+        lvCompras.setOnItemClickListener { _, _, position, _ ->
+            val dialog =layoutInflater.inflate(R.layout.opciones, null)
+            val alertDialog= AlertDialog.Builder(this)
+                .setView(dialog)
+                .create()
+
+            val tvTitulo = dialog.findViewById<TextView>(R.id.tvTitulo)
+            val btnEliminar = dialog.findViewById<Button>(R.id.btnEliminar)
+            val btnCancelar = dialog.findViewById<Button>(R.id.btnCancelar)
+            tvTitulo.text = "Opciones para" + tietProducto.text
+            alertDialog.show()
+
+            btnCancelar.setOnClickListener {
+                alertDialog.dismiss()
+            }
+            btnEliminar.setOnClickListener {
+                listaCompras.removeAt(position)
+                adapter.notifyDataSetChanged()
+                alertDialog.dismiss()
+            }
+//            var producto = listaCompras[position]
+//            listaCompras.removeAt(position)
+//            adapter.notifyDataSetChanged()
+        }
+
     }
+
 }

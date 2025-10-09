@@ -19,6 +19,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MiTiendita">
         <activity
+            android:name=".Inicio"
+            android:exported="false" />
+        <activity
+            android:name=".CardView"
+            android:exported="false" />
+        <activity
+            android:name=".Historial"
+            android:exported="false" />
+        <activity
+            android:name=".ListaCompra"
+            android:exported="false" />
+        <activity
             android:name=".listaProductos"
             android:exported="false" />
         <activity

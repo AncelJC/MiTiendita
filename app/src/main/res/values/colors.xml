@@ -11,6 +11,22 @@
     <color name="black">#000000</color>
     <color name="pink">#E6CAB8</color>
     <color name="purple">#5D60EF</color>
+    <color name="gray">#666666</color>"
+    <color name="gray2">#999999</color>"
+    <color name="naranja">#FFA500</color>
+
+    <!-- Colores principales -->
+    <color name="morado1">#6A1B9A</color>
+    <color name="morado3">#BA68C8</color>
+    <color name="amarillo2">#FFEB3B</color>
+    <color name="azul2">#1976D2</color>
+
+    <!-- Colores secundarios -->
+    <color name="naranja1">#FF7043</color>
+    <color name="gris1">#757575</color>
+    <color name="hint_color">#9E9E9E</color>
+    <color name="fondo_claro">#FAFAFA</color>
+    <color name="blanco">#FFFFFF</color>
 
 
 </resources>

@@ -42,7 +42,8 @@ class Acceso : AppCompatActivity() {
 
     private val listaUsuarios = mutableListOf(
         Usuario( 1, "Jose Martin", "Sanchez", "Flores", "jsanchez@cibertec.edu.pe", "123456"),
-        Usuario( 2, "Jose Martin", "Sanchez", "Flores", "jsanchez", "123456")
+        Usuario( 2, "Jose Martin", "Sanchez", "Flores", "jsanchez", "123456"),
+        Usuario(3, "admin", "admin", "admin", "admin", "123")
 
     )
 
@@ -189,7 +190,7 @@ class Acceso : AppCompatActivity() {
 
         if (usuario != null) {
             Toast.makeText(this, "✅ Bienvenido ${usuario.nombre}", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, ListaCompras::class.java))
+            startActivity(Intent(this, Inicio::class.java))
         } else {
             Toast.makeText(this, "❌ Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
         }
