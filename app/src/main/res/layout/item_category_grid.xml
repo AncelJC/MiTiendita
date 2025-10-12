@@ -26,7 +26,7 @@
             android:layout_height="80dp"
             android:scaleType="centerCrop"
             android:layout_marginBottom="4dp"
-            android:src="@drawable/ic_category_placeholder"
+            android:src="@drawable/ic_computer"
             android:contentDescription="Icono de Categoría"
             tools:src="@tools:sample/avatars" />
 

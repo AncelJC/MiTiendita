@@ -23,14 +23,14 @@
             android:layout_marginHorizontal="16dp"
             app:tint="@color/black"/>
         <FrameLayout
-            android:id="@+id/flayCont"
+            android:id="@+id/contenedorFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </LinearLayout>
 
 
     <com.google.android.material.navigation.NavigationView
-        android:id="@+id/navMenu"
+        android:id="@+id/nvMenu"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
