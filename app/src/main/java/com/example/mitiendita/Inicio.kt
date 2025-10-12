@@ -7,6 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.example.mitiendita.ui.CarritoFragment
+import com.example.mitiendita.ui.CategoriaFragment
+import com.example.mitiendita.ui.InicioFragment
 import com.google.android.material.navigation.NavigationView
 
 class Inicio : AppCompatActivity() {
