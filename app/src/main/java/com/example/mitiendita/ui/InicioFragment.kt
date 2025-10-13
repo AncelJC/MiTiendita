@@ -10,6 +10,7 @@ import com.example.mitiendita.R
 class InicioFragment : Fragment() {
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {

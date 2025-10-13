@@ -27,6 +27,15 @@
     <color name="hint_color">#9E9E9E</color>
     <color name="fondo_claro">#FAFAFA</color>
     <color name="blanco">#FFFFFF</color>
-
+    <color name="naranja6">#ED1C24</color>
+    <color name="naranja2">#F24133</color>
+    <color name="naranja3">#FF5741</color>
+    <color name="naranja4">#FF8103</color>
+    <color name="naranja5">#FF9D4D</color>
+    <color name="plomo">#B3B3B3</color>
+    <color name="rosa">#FF908A</color>
+    <color name="turquesa">#589FFF</color>
+    <color name="verde1">#83D689</color>
+    <color name="verde2">#B5F4B8</color>
 
 </resources>

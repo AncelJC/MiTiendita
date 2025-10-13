@@ -39,25 +39,28 @@ class Acceso : AppCompatActivity() {
 
     private lateinit var ivllamada: ImageView
     private lateinit var ivInternet: ImageView
+    private lateinit var dbHelper: DBHelper
 
-    private val listaUsuarios = mutableListOf(
-        Usuario( 1, "Jose Martin", "Sanchez", "Flores", "jsanchez@cibertec.edu.pe", "123456"),
-        Usuario( 2, "Jose Martin", "Sanchez", "Flores", "jsanchez", "123456"),
-        Usuario(3, "admin", "admin", "admin", "admin", "123")
-
-    )
+//    private val listaUsuarios = mutableListOf(
+//        Usuario( 1, "Jose Martin", "Sanchez", "Flores", "jsanchez@cibertec.edu.pe", "123456" ),
+//        Usuario( 2, "Jose Martin", "Sanchez", "Flores", "jsanchez", "123456"),
+//        Usuario(3, "admin", "admin", "admin", "admin", "123")
+//
+//    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.acceso)
 
-        val db = DBHelper(this)
+        //Inicializar BD
 
-        val etCorreo = findViewById<EditText>(R.id.tietCorreo)
-        val etPassword = findViewById<EditText>(R.id.tvPassword)
-        val btnIngresar = findViewById<Button>(R.id.btnLogin)
-        val btnRegistrar = findViewById<Button>(R.id.btnRegistrar)
+        dbHelper = DBHelper(this)
+
+        //Enlazar vistas
+        btn_recuperar = findViewById(R.id.tvRecuperar)
+        btnIngresar = findViewById(R.id.btnIngresar)
+        btn_registrar = findViewById(R.id.btnRegistrar)
 
         tietCorreo = findViewById(R.id.tietCorreo)
         tvPassword = findViewById(R.id.tvPassword)
@@ -68,6 +71,7 @@ class Acceso : AppCompatActivity() {
 
         ivllamada = findViewById(R.id.ivllamada)
         ivInternet = findViewById(R.id.ivInternet)
+
 
         btnIngresar.setOnClickListener {
             validarCampos()
@@ -86,7 +90,7 @@ class Acceso : AppCompatActivity() {
 //            }
 //        }
 
-        btnRegistrar.setOnClickListener {
+        btn_registrar.setOnClickListener {
             startActivity(Intent(this, Registro::class.java))
         }
 
@@ -180,16 +184,18 @@ class Acceso : AppCompatActivity() {
         if (error) return
 
         // Validación con lista de usuarios "quemada"
+
+
         var usuario: Usuario? = null
-        for (u in listaUsuarios) {
-            if ((u.correo == correo || u.correo == "$correo@cibertec.edu.pe") && u.clave == clave) {
-                usuario = u
-                break
-            }
-        }
+//        for (u in listaUsuarios) {
+//            if ((u.correo == correo || u.correo == "$correo@cibertec.edu.pe") && u.clave == clave) {
+//                usuario = u
+//                break
+//            }
+//        }
 
         if (usuario != null) {
-            Toast.makeText(this, "✅ Bienvenido ${usuario.nombre}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "✅ Bienvenido ${usuario.nombres}", Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, Inicio::class.java))
         } else {
             Toast.makeText(this, "❌ Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()

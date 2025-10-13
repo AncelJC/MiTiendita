@@ -41,15 +41,33 @@
         <item name="cardElevation">4dp</item>
         <item name="cardBackgroundColor">@color/white</item>
     </style>
-
+    <style name="output">
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/azul2</item>
+    </style>
 
     <style name="etiquetaTexto">
         <item name="android:fontFamily">@font/poppins_regular</item>
         <item name="android:textSize">13sp</item>
         <item name="android:textColor">@color/gris1</item>
     </style>
+    <style name="boton">
+        <item name="strokeWidth">2dp</item>
+        <item name="strokeColor">@color/azul2</item>
+        <item name="backgroundTint">@color/amarillo2</item>
+        <item name="android:textColor">@color/azul2</item>
+        <item name="fontFamily">@font/poppins_semi_bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">16dp</item>
+    </style>
 
-
+    <style name="input">
+        <item name="android:fontFamily">@font/poppins_light</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/azul2</item>
+    </style>
     <style name="enlaceTexto">
         <item name="android:textColor">@color/blue</item>
         <item name="android:textStyle">bold</item>

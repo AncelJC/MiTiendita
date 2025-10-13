@@ -1,256 +1,261 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/main"
     android:background="#F9F9F9"
     tools:context=".Registro">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/main"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="24dp">
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
 
-        <!-- Título -->
         <TextView
             android:id="@+id/tvTitulo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Registro de Usuario"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:textColor="@color/material_dynamic_primary10"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginBottom="12dp"/>
+            android:text="Registro de nuevo usuario"
+            android:layout_marginTop="0dp"
+            style="@style/titulo"/>
 
-        <!-- Nombre -->
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutNombre"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
+            android:id="@+id/tilDni"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Nombre"
-            app:boxStrokeColor="#4CAF50"
-            android:textColor="@color/naranja"
-            app:hintTextColor="@color/black"
-            app:layout_constraintTop_toBottomOf="@id/tvTitulo"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp">
+            android:hint="DNI"
+            android:layout_marginTop="16dp"
+            app:counterMaxLength="8"
+            app:counterEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etNombre"
+                android:id="@+id/tietDni"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName" />
+                android:singleLine="true"
+                android:inputType="number"
+                android:maxLength="8"
+                style="@style/input"/>
+
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Apellido -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutApellido"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="Apellido"
-            app:boxStrokeColor="#4CAF50"
-            app:layout_constraintTop_toBottomOf="@id/layoutNombre"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etApellido"
-                android:textColor="@color/naranja"
-
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Edad -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutEdad"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="Edad"
-            app:boxStrokeColor="#4CAF50"
-            app:layout_constraintTop_toBottomOf="@id/layoutApellido"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etEdad"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Texto Sexo -->
-        <TextView
-            android:id="@+id/tvSexo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sexo"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#333333"
-            app:layout_constraintTop_toBottomOf="@id/layoutEdad"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="20dp" />
-
-        <!-- Sexo -->
-        <RadioGroup
-            android:id="@+id/rgSexo"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/llayApellidos"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/tvSexo"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="8dp"
+            android:weightSum="2">
 
-            <RadioButton
-                android:id="@+id/rbHombre"
-                android:layout_width="wrap_content"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilApellidoP"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Hombre"
-                android:textColor="#333333"/>
+                android:hint="Apellido paterno"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp">
 
-            <RadioButton
-                android:id="@+id/rbMujer"
-                android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tietApellidoP"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:inputType="textCapWords"
+                    android:nextFocusDown="@id/tietApellidoM"
+                    style="@style/input"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilApellidoM"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Mujer"
-                android:textColor="#333333"
-                android:layout_marginStart="20dp" />
+                android:hint="Apellido materno"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tietApellidoM"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:inputType="textCapWords"
+                    style="@style/input"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilNombres"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nombres"
+            android:layout_marginTop="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/tietNombres"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:inputType="textCapWords"
+                style="@style/input"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilCelular"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Celular"
+            android:layout_marginTop="16dp"
+            app:counterMaxLength="9"
+            app:counterEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/tietCelular"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:inputType="phone"
+                android:maxLength="9"
+                style="@style/input"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/tvSexo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sexo:"
+            android:layout_marginTop="16dp"
+            style="@style/output"/>
+
+        <RadioGroup
+            android:id="@+id/rgSexo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rbtMasculino"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Masculino"
+                android:layout_weight="1"
+                android:padding="8dp"
+                android:button="@drawable/radio"
+                app:buttonTint="@color/azul2"/>
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rbtFemenino"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Femenino"
+                android:layout_weight="1"
+                android:padding="8dp"
+                android:button="@drawable/radio"
+                app:buttonTint="@color/pink"/>
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rbNinguno"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Prefiero no decirlo"
+                android:checked="true"
+                android:layout_weight="1"
+                android:padding="8dp"
+                android:button="@drawable/radio"
+                app:buttonTint="@color/morado3"/>
+
         </RadioGroup>
 
-        <!-- Teléfono -->
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutTelefono"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
+            android:id="@+id/tilCorreo"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Teléfono"
-            app:boxStrokeColor="#4CAF50"
-            app:layout_constraintTop_toBottomOf="@id/rgSexo"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp">
+            android:hint="Correo"
+            android:layout_marginTop="8dp"
+            app:suffixTextAppearance="@style/input"
+            app:suffixText="\@cibertec.edu.pe">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etTelefono"
+                android:id="@+id/tietCorreo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="phone" />
+                android:singleLine="true"
+                android:inputType="text"
+                style="@style/input"/>
+
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Dirección -->
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutDireccion"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="Dirección"
-            app:boxStrokeColor="#4CAF50"
-            app:layout_constraintTop_toBottomOf="@id/layoutTelefono"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etDireccion"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPostalAddress" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Correo -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutCorreo"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="Correo electrónico"
-            app:boxStrokeColor="#4CAF50"
-            app:layout_constraintTop_toBottomOf="@id/layoutDireccion"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etCorreo"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/naranja"
-                android:inputType="textEmailAddress" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Contraseña -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutContrasena"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
+            android:id="@+id/tilClave"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Contraseña"
+            android:layout_marginTop="16dp"
             app:passwordToggleEnabled="true"
-            app:boxStrokeColor="#4CAF50"
-            app:layout_constraintTop_toBottomOf="@id/layoutCorreo"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-
-            android:layout_marginTop="16dp">
+            app:passwordToggleTint="@color/plomo">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etContrasena"
+                android:id="@+id/tietClave"
                 android:layout_width="match_parent"
-                android:textColor="@color/naranja"
-
                 android:layout_height="wrap_content"
-                android:inputType="textPassword" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:singleLine="true"
+                android:inputType="textPassword"
+                style="@style/input"/>
 
-        <!-- Confirmar Contraseña -->
+        </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutConfirmarContrasena"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
+            android:id="@+id/tilClave2"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Confirmar Contraseña"
+            android:hint="Contraseña"
+            android:layout_marginTop="16dp"
             app:passwordToggleEnabled="true"
-            app:boxStrokeColor="#4CAF50"
-            app:layout_constraintTop_toBottomOf="@id/layoutContrasena"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp">
+            app:passwordToggleTint="@color/plomo">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etConfirmarContrasena"
+                android:id="@+id/tietClave2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/naranja"
+                android:singleLine="true"
+                android:inputType="textPassword"
+                style="@style/input"/>
 
-                android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Botón Registrar -->
-        <Button
-            android:id="@+id/btnRegistrar"
-            android:layout_width="0dp"
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/cbTerminos"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="#4CAF50"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            android:text="Registrar"
-            app:layout_constraintTop_toBottomOf="@id/layoutConfirmarContrasena"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:text="Acepto los términos y condiciones y la política de privacidad de Cibertec"
+            android:layout_marginTop="16dp"
+            android:button="@drawable/checkbox"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            app:buttonTint="@color/gray"
+            style="@style/output"/>
+
+        <Button
+            android:id="@+id/btnGuardar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Guardar datos"
             android:layout_marginTop="24dp"
-            android:padding="12dp"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_marginBottom="24dp"/> </LinearLayout>
 </ScrollView>
