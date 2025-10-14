@@ -21,6 +21,14 @@
         <item name="android:textAlignment">center</item>
         <item name="android:textColor">@color/blue</item>
     </style>
+    <!-- Estilo personalizado para imitar FilledTonalButton -->
+    <style name="Widget.Material3.Button.FilledTonalButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:backgroundTint">@color/tonal_button_color</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:cornerRadius">12dp</item>
+        <item name="android:fontFamily">@font/poppins_black</item>
+        <item name="android:elevation">4dp</item>
+    </style>
 
 
 </resources>

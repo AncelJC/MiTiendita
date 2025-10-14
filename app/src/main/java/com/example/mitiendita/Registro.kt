@@ -2,6 +2,7 @@ package com.example.mitiendita
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Patterns
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.RadioGroup
@@ -18,16 +19,17 @@ class Registro : AppCompatActivity() {
 
     private lateinit var dbHelper: DBHelper
 
-    // Usamos valores por defecto ya que los campos de 'edad' y 'dirección' no están en el XML final.
-    private val EDAD_DEFAULT = 18
-    private val DIRECCION_DEFAULT = "No especificada"
+    // Constantes de validación
+    private val DNI_LENGTH = 8
+    private val CLAVE_MIN_LENGTH: Int
+        get() = 6
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.registro)
 
-        // Ajuste de barras del sistema
+        // Ajuste de barras del sistema (mantener)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -37,19 +39,19 @@ class Registro : AppCompatActivity() {
         // Inicializar la base de datos
         dbHelper = DBHelper(this)
 
-        // 1. Referencias a los campos UI (¡Coinciden con tu XML!)
+        // 1. Referencias a los campos UI (mantener)
         val tietDni = findViewById<TextInputEditText>(R.id.tietDni)
         val tietNombres = findViewById<TextInputEditText>(R.id.tietNombres)
-        val tietApellidoPaterno = findViewById<TextInputEditText>(R.id.tietApellidoP) // tilApellidoP -> tietApellidoP
-        val tietApellidoMaterno = findViewById<TextInputEditText>(R.id.tietApellidoM) // tilApellidoM -> tietApellidoM
+        val tietApellidoPaterno = findViewById<TextInputEditText>(R.id.tietApellidoP)
+        val tietApellidoMaterno = findViewById<TextInputEditText>(R.id.tietApellidoM)
         val tietCelular = findViewById<TextInputEditText>(R.id.tietCelular)
         val tietCorreo = findViewById<TextInputEditText>(R.id.tietCorreo)
         val tietClave = findViewById<TextInputEditText>(R.id.tietClave)
-        val tietConfirmarClave = findViewById<TextInputEditText>(R.id.tietClave2) // Clave de Confirmación
+        val tietConfirmarClave = findViewById<TextInputEditText>(R.id.tietClave2)
 
         val rgSexo = findViewById<RadioGroup>(R.id.rgSexo)
-        val chkTyc = findViewById<CheckBox>(R.id.cbTerminos) // Checkbox de Términos (cbTerminos)
-        val btnRegistrar = findViewById<Button>(R.id.btnGuardar) // Botón de Guardar (btnGuardar)
+        val chkTyc = findViewById<CheckBox>(R.id.cbTerminos)
+        val btnRegistrar = findViewById<Button>(R.id.btnGuardar)
 
 
         // 2. Acción del botón Registrar
@@ -74,7 +76,7 @@ class Registro : AppCompatActivity() {
             }
 
 
-            // 3. Cadena de validaciones (Implementación completa)
+            // 3. Cadena de validaciones (¡Mejorada!)
 
             // Validar campos vacíos
             if (dni.isEmpty() || nombres.isEmpty() || apellidoPaterno.isEmpty() || apellidoMaterno.isEmpty() || celular.isEmpty() || correo.isEmpty() || clave.isEmpty() || claveConfirmar.isEmpty()){
@@ -82,9 +84,21 @@ class Registro : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Validar selección de sexo
-            if (sexo.isEmpty()){
-                Toast.makeText(this, "Debe seleccionar una opción de sexo.", Toast.LENGTH_LONG).show()
+            // Validar DNI (longitud exacta de 8 dígitos)
+            if (dni.length != DNI_LENGTH) {
+                Toast.makeText(this, "El DNI debe tener $DNI_LENGTH dígitos.", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
+            // Validar formato básico de Correo
+            if (!Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
+                Toast.makeText(this, "El formato del correo electrónico no es válido.", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
+            // Validar longitud mínima de Contraseña
+            if (clave.length < CLAVE_MIN_LENGTH) {
+                Toast.makeText(this, "La contraseña debe tener al menos $CLAVE_MIN_LENGTH caracteres.", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 
@@ -94,19 +108,24 @@ class Registro : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            // Validar selección de sexo
+            if (sexo.isEmpty()){
+                Toast.makeText(this, "Debe seleccionar una opción de sexo.", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
             // Validar aceptación de términos
             if (!aceptoTerminos){
                 Toast.makeText(this, "Debe aceptar los términos y condiciones.", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 
-            // 4. Registro en la base de datos
+            // 4. Registro en la base de datos (si todas las validaciones pasan)
             val registroExitoso = dbHelper.registrarUsuario(
                 dni = dni,
                 nombres = nombres,
                 apellidoP = apellidoPaterno,
                 apellidoM = apellidoMaterno,
-                // Usando valores por defecto
                 sexo = sexo,
                 telefono = celular,
                 correo = correo,
@@ -122,8 +141,7 @@ class Registro : AppCompatActivity() {
                 startActivity(intent)
                 finish()
             } else {
-                // Posible error: Correo ya existe (UNIQUE constraint en la BD)
-                Toast.makeText(this, "Error al registrar. El correo podría estar ya en uso o el DNI ser duplicado.", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Error al registrar. El correo o DNI podría estar ya en uso.", Toast.LENGTH_LONG).show()
             }
         }
     }

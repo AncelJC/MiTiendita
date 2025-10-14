@@ -32,10 +32,13 @@
     <color name="naranja3">#FF5741</color>
     <color name="naranja4">#FF8103</color>
     <color name="naranja5">#FF9D4D</color>
+    <color name="tonal_button_color">#6750A4</color> <!-- Violeta Material 3 -->
     <color name="plomo">#B3B3B3</color>
     <color name="rosa">#FF908A</color>
     <color name="turquesa">#589FFF</color>
     <color name="verde1">#83D689</color>
     <color name="verde2">#B5F4B8</color>
+
+
 
 </resources>

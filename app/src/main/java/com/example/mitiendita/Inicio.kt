@@ -1,12 +1,12 @@
 package com.example.mitiendita
 
 import android.os.Bundle
-import android.view.Gravity
 import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.example.mitiendita.ui.CarritoFragment
@@ -22,9 +22,6 @@ class Inicio : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
-
         enableEdgeToEdge()
         setContentView(R.layout.activity_inicio)
 
@@ -32,42 +29,41 @@ class Inicio : AppCompatActivity() {
         nvMenu = findViewById(R.id.nvMenu)
         ivMenu = findViewById(R.id.ivMenu)
 
+        // 💡 Ajuste: Usar el listener para aplicar padding a la IV del menú
+        // Esto asegura que el icono no quede detrás de la barra de estado del sistema.
+        ViewCompat.setOnApplyWindowInsetsListener(ivMenu) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updatePadding(top = systemBars.top) // Aplicar padding superior
+            insets
+        }
 
+        // 1. Abre el menú lateral al tocar el ícono
         ivMenu.setOnClickListener {
             dlayMenu.open()
         }
 
+        // 2. Maneja la selección de ítems del Navigation View
         nvMenu.setNavigationItemSelectedListener{ menuItem ->
-            menuItem.isChecked = true // Define que se seleccione el item
-            dlayMenu.closeDrawers()//Cierra el menu desplegable
+            menuItem.isChecked = true // Marca el ítem como seleccionado
+            dlayMenu.closeDrawers()   // Cierra el menú
 
-//            Maneja las selecciones
-
+            // Maneja las selecciones
             when (menuItem.itemId) {
                 R.id.itInicio -> replaceFragment(InicioFragment())
                 R.id.itCategoria -> replaceFragment(CategoriaFragment())
                 R.id.itCarrito -> replaceFragment(CarritoFragment())
-//                R.id.itPerfil -> replaceFragment(PerfilFragment())
-
+                // R.id.itPerfil -> replaceFragment(PerfilFragment())
             }
             true
         }
 
-        //Hace que el teclado del dispositivo no tape a las Views (EditText, TextImputEditText, etc)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.dlayMenu)) { v, insets ->
-            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(
-                systemBars.left,
-                systemBars.top,
-                systemBars.right,
-                maxOf(systemBars.bottom, imeInsets.bottom)
-                )
-            insets
-        }
+        // 3. Cargar el fragmento inicial al crear la actividad
         replaceFragment(InicioFragment())
     }
 
+    /**
+     * Función genérica para reemplazar fragmentos en el contenedor.
+     */
     private fun replaceFragment(fragment : Fragment){
         supportFragmentManager.beginTransaction()
             .replace(R.id.contenedorFragment, fragment)
