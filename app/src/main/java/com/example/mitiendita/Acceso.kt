@@ -21,7 +21,6 @@ import com.example.mitiendita.database.DBHelper
 import com.example.mitiendita.entity.Usuario
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import java.util.jar.Manifest
 
 class Acceso : AppCompatActivity() {
 
@@ -41,9 +40,9 @@ class Acceso : AppCompatActivity() {
     private lateinit var ivInternet: ImageView
 
     private val listaUsuarios = mutableListOf(
-        Usuario( 1, "Jose Martin", "Sanchez", "Flores", "jsanchez@cibertec.edu.pe", "123456"),
-        Usuario( 2, "Jose Martin", "Sanchez", "Flores", "jsanchez", "123456"),
-        Usuario(3, "admin", "admin", "admin", "admin", "123")
+        Usuario( 1, "Jose Martin", "Sanchez", "Flores", "jsanchez@cibertec.edu.pe", "123456", "Masculino", true),
+        Usuario( 2, "Jose Martin", "Sanchez", "Flores", "jsanchez", "123456", "Masculino", true),
+        Usuario(3, "admin", "admin", "admin", "admin", "123", "Masculino", true)
 
     )
 
@@ -182,14 +181,14 @@ class Acceso : AppCompatActivity() {
         // Validación con lista de usuarios "quemada"
         var usuario: Usuario? = null
         for (u in listaUsuarios) {
-            if ((u.correo == correo || u.correo == "$correo@cibertec.edu.pe") && u.clave == clave) {
+            if ((u.correo == correo || u.correo == "$correo@cibertec.edu.pe") && u.contraseña == clave) {
                 usuario = u
                 break
             }
         }
 
         if (usuario != null) {
-            Toast.makeText(this, "✅ Bienvenido ${usuario.nombre}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "✅ Bienvenido ${usuario.nombres}", Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, Inicio::class.java))
         } else {
             Toast.makeText(this, "❌ Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
