@@ -1,34 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Tema principal de la app (ya lo tienes) -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Personalización global -->
+
+    <!-- 1. TEMA PRINCIPAL CORREGIDO -->
+    <!-- Hereda de un tema de Material 3 para ser consistente con los componentes que usas -->
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Aquí puedes añadir personalizaciones globales para tu app -->
     </style>
 
-    <!-- 🔹 Estilo personalizado para el botón "Agregar producto" -->
-    <style name="BotonAgregarProducto" parent="Widget.MaterialComponents.Button">
+    <!-- 2. ESTILO DE FORMA PARA LAS ESQUINAS -->
+    <!-- Este estilo se reutilizará en los botones que quieras redondear -->
+    <style name="ShapeAppearance.App.Button.Rounded" parent="">
+        <item name="cornerFamily">rounded</item>
+        <!-- CORRECCIÓN: Se usa "cornerSize", no "cornerRadius" -->
+        <item name="cornerSize">16dp</item>
+    </style>
+    <style name="BotonAgregarProducto">
+        <!-- Fondo con color verde y bordes redondeados -->
+        <item name="android:backgroundTint">@color/azul2</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:paddingVertical">10dp</item>
+        <item name="android:paddingHorizontal">20dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:background">@drawable/ic_guardar</item>
+    </style>
+
+
+    <!-- 3. ESTILO PARA BOTÓN PRIMARIO (ej. "Agregar Producto") -->
+    <!-- Hereda de un estilo de Material 3 y le aplica la forma personalizada -->
+    <style name="BotonPrimario" parent="Widget.Material3.Button">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textAllCaps">false</item>
-        <item name="cornerRadius">12dp</item>
-        <item name="backgroundTint">@color/purple_500</item>
+        <item name="backgroundTint">@color/purple_500</item> <!-- Cambia este color si lo necesitas -->
         <item name="android:textColor">@android:color/white</item>
         <item name="android:layout_marginTop">12dp</item>
+        <!-- CORRECCIÓN: Aplicamos la forma definida arriba -->
+        <item name="shapeAppearance">@style/ShapeAppearance.App.Button.Rounded</item>
     </style>
-    <!-- 🔹 Estilo personalizado para el botón "Historial" -->
+
+    <!-- 4. ESTILO PARA BOTÓN SECUNDARIO (Tonal) -->
+    <!-- Si necesitas otro tipo de botón, como un TonalButton -->
+    <style name="BotonSecundario" parent="Widget.Material3.Button.TonalButton">
+        <!-- Personalizaciones para el botón secundario -->
+        <item name="shapeAppearance">@style/ShapeAppearance.App.Button.Rounded</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- Estilo para títulos -->
     <style name="titulo">
         <item name="android:textSize">18sp</item>
         <item name="android:textAlignment">center</item>
         <item name="android:textColor">@color/blue</item>
     </style>
-    <!-- Estilo personalizado para imitar FilledTonalButton -->
-    <style name="Widget.Material3.Button.FilledTonalButton" parent="Widget.MaterialComponents.Button">
-        <item name="android:backgroundTint">@color/tonal_button_color</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:cornerRadius">12dp</item>
-        <item name="android:fontFamily">@font/poppins_black</item>
-        <item name="android:elevation">4dp</item>
-    </style>
 
+    <!-- NO es necesario redefinir Widget.Material3.Button.FilledTonalButton -->
+    <!-- Por eso se eliminó esa sección -->
 
 </resources>

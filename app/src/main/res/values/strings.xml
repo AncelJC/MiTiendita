@@ -28,5 +28,6 @@
     <string name="imagen_producto">Imagen del producto</string>
     <string name="seleccionar_imagen">Seleccionar Imagen</string>
     <string name="guardar_producto">Guardar Producto</string>
+    <string name="precio_formato">$%.2f</string>
 
 </resources>

@@ -108,13 +108,13 @@
             android:textStyle="bold"
             android:layout_marginBottom="6dp"/>
 
+        <!-- SPINNER CORREGIDO: Sin background personalizado -->
         <Spinner
             android:id="@+id/spnCategoria"
             android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:background="@drawable/spinner_background"
-            android:paddingHorizontal="12dp"
-            android:layout_marginBottom="16dp"/>
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:minHeight="48dp"/>
 
         <!-- Imagen del producto -->
         <TextView
@@ -161,5 +161,4 @@
             app:iconPadding="8dp"
             style="@style/Widget.Material3.Button.FilledTonalButton"/>
     </LinearLayout>
-
 </ScrollView>

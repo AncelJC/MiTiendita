@@ -12,13 +12,14 @@ import androidx.fragment.app.Fragment
 import com.example.mitiendita.ui.CarritoFragment
 import com.example.mitiendita.ui.CategoriaFragment
 import com.example.mitiendita.ui.InicioFragment
+import com.example.mitiendita.ui.ProductosFragment
 import com.google.android.material.navigation.NavigationView
 
 class Inicio : AppCompatActivity() {
 
-    private lateinit var dlayMenu: DrawerLayout
-    private lateinit var nvMenu: NavigationView
-    private lateinit var ivMenu: ImageView
+        private lateinit var dlayMenu: DrawerLayout
+        private lateinit var nvMenu: NavigationView
+        private lateinit var ivMenu: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +53,8 @@ class Inicio : AppCompatActivity() {
                 R.id.itInicio -> replaceFragment(InicioFragment())
                 R.id.itCategoria -> replaceFragment(CategoriaFragment())
                 R.id.itCarrito -> replaceFragment(CarritoFragment())
+                R.id.itAgregarProducto -> replaceFragment(ProductosFragment())
+                // Agrega más casos según tus necesidades
                 // R.id.itPerfil -> replaceFragment(PerfilFragment())
             }
             true

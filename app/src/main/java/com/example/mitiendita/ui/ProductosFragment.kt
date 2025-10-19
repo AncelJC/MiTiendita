@@ -8,136 +8,252 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.Spinner
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.mitiendita.R
-import com.example.mitiendita.database.DBHelper
-import com.google.android.material.textfield.TextInputEditText
+import com.example.mitiendita.database.CategoriaDAO // ⬅️ CAMBIO: Importar el DAO de Categorías
+import com.example.mitiendita.database.ProductoDAO
+import com.example.mitiendita.databinding.FragmentProductosBinding
+import com.example.mitiendita.entity.Producto
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ProductosFragment : Fragment() {
 
-    // Constante para la selección de imagen
-    private val PICK_IMAGE_REQUEST = 100
+    private var _binding: FragmentProductosBinding? = null
+    private val binding get() = _binding!!
 
-    private lateinit var dbHelper: DBHelper
-    private lateinit var tietNombre: TextInputEditText
-    private lateinit var tietDescripcion: TextInputEditText
-    private lateinit var tietPrecio: TextInputEditText
-    private lateinit var tietStock: TextInputEditText
-    private lateinit var spnCategoria: Spinner // 💡 AÑADIDO: Spinner
-    private lateinit var ivProducto: ImageView  // 💡 AÑADIDO: ImageView para mostrar la imagen
-    private lateinit var btnSeleccionarImagen: Button // 💡 AÑADIDO: Botón para seleccionar imagen
-    private lateinit var btnGuardarProducto: Button
+    // 🔴 CAMBIO: Usamos CategoriaDAO para la lectura de categorías
+    private lateinit var categoriaDAO: CategoriaDAO
+    private lateinit var productoDAO: ProductoDAO
 
-    // Variable para guardar la URI de la imagen seleccionada
-    private var imagenUri: Uri? = null
+    private var imagenSeleccionada: String? = null
+    private val categoriasMap = mutableMapOf<String, Int>() // Mapa: Nombre -> ID
 
-    // Simulando categorías (deberías obtenerlas de la tabla 'categorias' en DBHelper)
-    private val categorias = listOf("Electrónica", "Ropa", "Alimentos", "Hogar")
+    // Contract para seleccionar imagen
+    private val seleccionarImagen = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                val contentResolver = requireContext().contentResolver
+                val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                contentResolver.takePersistableUriPermission(uri, takeFlags)
 
+                imagenSeleccionada = uri.toString()
+                binding.ivProducto.setImageURI(uri)
+            }
+        }
+    }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_productos, container, false)
-        dbHelper = DBHelper(requireContext())
-
-        // 1. Referenciar vistas
-        tietNombre = view.findViewById(R.id.tietNombreProd)
-        tietDescripcion = view.findViewById(R.id.tietDescripcionProd)
-        tietPrecio = view.findViewById(R.id.tietPrecioProd)
-        tietStock = view.findViewById(R.id.tietStockProd)
-        spnCategoria = view.findViewById(R.id.spnCategoria) // 💡 NUEVO
-        ivProducto = view.findViewById(R.id.ivProducto)     // 💡 NUEVO
-        btnSeleccionarImagen = view.findViewById(R.id.btnSeleccionarImagen) // 💡 NUEVO
-        btnGuardarProducto = view.findViewById(R.id.btnGuardarProducto)
-
-        // 2. Configurar Spinner de Categorías
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categorias)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spnCategoria.adapter = adapter
-
-        // 3. Definir acciones
-        btnGuardarProducto.setOnClickListener {
-            guardarProducto()
-        }
-
-        btnSeleccionarImagen.setOnClickListener {
-            seleccionarImagen()
-        }
-
-        return view
+    ): View {
+        _binding = FragmentProductosBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    // 💡 FUNCIÓN NUEVA: Iniciar el selector de imágenes
-    private fun seleccionarImagen() {
-        val intent = Intent(Intent.ACTION_PICK)
-        intent.type = "image/*"
-        startActivityForResult(intent, PICK_IMAGE_REQUEST)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // 🔴 Inicialización de DAOs
+        categoriaDAO = CategoriaDAO(requireContext()) // ⬅️ Usamos CategoriaDAO
+        productoDAO = ProductoDAO(requireContext())
+
+        inicializarSpinnerCategorias()
+        configurarEventos()
     }
 
-    // 💡 FUNCIÓN NUEVA: Manejar el resultado de la selección de imagen
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+    private fun inicializarSpinnerCategorias() {
+        lifecycleScope.launch {
+            try {
+                // 🔴 CORREGIDO: Usamos categoriaDAO.obtenerCategoriasConId()
+                val categoriasConId = withContext(Dispatchers.IO) {
+                    categoriaDAO.obtenerCategoriasConId()
+                }
 
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.data != null) {
-            imagenUri = data.data
-            ivProducto.setImageURI(imagenUri) // Muestra la imagen seleccionada
-            Toast.makeText(requireContext(), "Imagen seleccionada.", Toast.LENGTH_SHORT).show()
+                withContext(Dispatchers.Main) {
+                    if (categoriasConId.isNotEmpty()) {
+                        val nombresCategorias = mutableListOf<String>()
+
+                        // Llenar el mapa y la lista de nombres para el Spinner
+                        categoriasConId.forEach { (id, nombre) ->
+                            categoriasMap[nombre] = id
+                            nombresCategorias.add(nombre)
+                        }
+
+                        val adapter = ArrayAdapter(
+                            requireContext(),
+                            android.R.layout.simple_spinner_item,
+                            nombresCategorias
+                        ).apply {
+                            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                        }
+
+                        binding.spnCategoria.adapter = adapter
+                    } else {
+                        mostrarMensaje("No hay categorías disponibles. Crea una categoría primero.")
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    mostrarMensaje("Error al cargar categorías: ${e.message}")
+                }
+            }
         }
     }
 
-    private fun guardarProducto() {
-        // Obtener y validar datos
-        val nombre = tietNombre.text.toString().trim()
-        val descripcion = tietDescripcion.text.toString().trim()
-        val precioStr = tietPrecio.text.toString().trim()
-        val stockStr = tietStock.text.toString().trim()
+    private fun configurarEventos() {
+        binding.btnSeleccionarImagen.setOnClickListener {
+            seleccionarImagenDesdeGaleria()
+        }
 
-        // 💡 NUEVO: Obtener la categoría seleccionada (el índice + 1 si la tabla empieza en ID 1)
-        val idCategoria = spnCategoria.selectedItemPosition + 1
+        binding.btnGuardarProducto.setOnClickListener {
+            validarYGuardarProducto()
+        }
+    }
 
-        // 💡 NUEVO: Obtener la ruta de la imagen
-        val rutaImagen = imagenUri?.toString()
+    private fun seleccionarImagenDesdeGaleria() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            type = "image/*"
+            addCategory(Intent.CATEGORY_OPENABLE)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
 
-        if (nombre.isEmpty() || precioStr.isEmpty() || stockStr.isEmpty()) {
-            Toast.makeText(requireContext(), "Nombre, Precio y Stock son obligatorios.", Toast.LENGTH_LONG).show()
+        val chooser = Intent.createChooser(intent, "Seleccionar imagen del producto")
+        seleccionarImagen.launch(chooser)
+    }
+
+    private fun validarYGuardarProducto() {
+        val nombre = binding.tietNombreProd.text.toString().trim()
+        val descripcion = binding.tietDescripcionProd.text.toString().trim()
+        val precioTexto = binding.tietPrecioProd.text.toString().trim()
+        val stockTexto = binding.tietStockProd.text.toString().trim()
+        val categoriaSeleccionada = binding.spnCategoria.selectedItem as? String
+
+        // ... (Validaciones)
+        if (nombre.isEmpty()) {
+            mostrarErrorCampo(binding.tietNombreProd, "El nombre del producto es obligatorio")
+            return
+        }
+        binding.tietNombreProd.error = null
+
+        if (precioTexto.isEmpty()) {
+            mostrarErrorCampo(binding.tietPrecioProd, "El precio es obligatorio")
             return
         }
 
-        val precio = precioStr.toDoubleOrNull()
-        val stock = stockStr.toIntOrNull()
-
-        if (precio == null || stock == null || precio <= 0 || stock < 0) {
-            Toast.makeText(requireContext(), "Precio o Stock tienen formatos inválidos.", Toast.LENGTH_LONG).show()
+        if (stockTexto.isEmpty()) {
+            mostrarErrorCampo(binding.tietStockProd, "El stock es obligatorio")
             return
         }
 
-        // 3. Insertar en la base de datos (con los nuevos campos)
-        val idInsertado = dbHelper.insertarProducto(
+        if (categoriaSeleccionada == null) {
+            mostrarMensaje("Selecciona una categoría")
+            return
+        }
+
+        val precio = precioTexto.toDoubleOrNull()
+        val stock = stockTexto.toIntOrNull()
+
+        if (precio == null || precio <= 0) {
+            mostrarErrorCampo(binding.tietPrecioProd, "Ingresa un precio válido")
+            return
+        }
+        binding.tietPrecioProd.error = null
+
+        if (stock == null || stock < 0) {
+            mostrarErrorCampo(binding.tietStockProd, "Ingresa un stock válido")
+            return
+        }
+        binding.tietStockProd.error = null
+
+
+        // Obtener ID de la categoría seleccionada
+        val idCategoria = categoriasMap[categoriaSeleccionada] ?: -1
+        if (idCategoria == -1) {
+            mostrarMensaje("Error: Categoría no válida (ID no encontrado)")
+            return
+        }
+
+        // Guardar producto
+        guardarProducto(nombre, descripcion, precio, stock, idCategoria, imagenSeleccionada)
+    }
+
+    private fun guardarProducto(
+        nombre: String,
+        descripcion: String,
+        precio: Double,
+        stock: Int,
+        idCategoria: Int,
+        imagen: String?
+    ) {
+        val nuevoProducto = Producto(
             nombre = nombre,
-            descripcion = descripcion,
+            descripcion = descripcion.ifEmpty { null },
             precio = precio,
             stock = stock,
-            idCat = idCategoria, // 💡 NUEVO
-            imagen = rutaImagen  // 💡 NUEVO
+            idCat = idCategoria,
+            imagen = imagen,
+            nombreCategoria = ""
         )
 
-        if (idInsertado > 0) {
-            Toast.makeText(requireContext(), "Producto '$nombre' guardado con éxito.", Toast.LENGTH_LONG).show()
-            // Limpiar campos después de guardar
-            tietNombre.setText("")
-            tietDescripcion.setText("")
-            tietPrecio.setText("")
-            tietStock.setText("")
-            ivProducto.setImageResource(R.drawable.ic_image_placeholder) // Restaura el placeholder
-            imagenUri = null // Limpia la URI
-        } else {
-            Toast.makeText(requireContext(), "Error al guardar el producto.", Toast.LENGTH_LONG).show()
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                // Usamos el PRODUCTODAO para la operación de escritura
+                val id = productoDAO.insertarProducto(nuevoProducto)
+
+                withContext(Dispatchers.Main) {
+                    if (id > 0) {
+                        mostrarMensaje("✅ Producto '$nombre' guardado exitosamente (ID: $id)")
+                        limpiarFormulario()
+                    } else {
+                        mostrarMensaje("❌ Error al guardar el producto")
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    mostrarMensaje("❌ Error al guardar en BD: ${e.message}")
+                }
+            }
         }
+    }
+
+    private fun limpiarFormulario() {
+        binding.tietNombreProd.text?.clear()
+        binding.tietDescripcionProd.text?.clear()
+        binding.tietPrecioProd.text?.clear()
+        binding.tietStockProd.text?.clear()
+
+        binding.ivProducto.setImageResource(R.drawable.ic_box)
+        imagenSeleccionada = null
+
+        limpiarErrores()
+    }
+
+    private fun limpiarErrores() {
+        binding.tietNombreProd.error = null
+        binding.tietPrecioProd.error = null
+        binding.tietStockProd.error = null
+    }
+
+    private fun mostrarErrorCampo(campo: com.google.android.material.textfield.TextInputEditText, mensaje: String) {
+        campo.error = mensaje
+        campo.requestFocus()
+    }
+
+    private fun mostrarMensaje(mensaje: String) {
+        Toast.makeText(requireContext(), mensaje, Toast.LENGTH_LONG).show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
