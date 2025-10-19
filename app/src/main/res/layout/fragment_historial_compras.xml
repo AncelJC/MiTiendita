@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".ui.ListaProductosFragment">
+    tools:context=".ui.HistorialComprasFragment">
 
-    <!-- App Bar con título y búsqueda -->
+    <!-- App Bar con título y filtros -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,9 +19,9 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/white"
-            app:title="Lista de Productos"
+            app:title="Historial de Compras"
             app:titleTextColor="@color/black"
-            app:menu="@menu/menu_productos" />
+            app:menu="@menu/menu_historial" />
 
         <!-- Barra de búsqueda y filtros -->
         <com.google.android.material.card.MaterialCardView
@@ -41,43 +42,45 @@
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Buscar productos..."
+                    android:hint="Buscar en compras..."
                     app:startIconDrawable="@drawable/ic_search"
                     app:boxStrokeColor="@color/purple_500"
                     android:layout_marginBottom="12dp">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etBuscarProducto"
+                        android:id="@+id/etBuscarHistorial"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:maxLines="1"
                         android:imeOptions="actionSearch" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Filtros rápidos -->
+                <!-- Filtros -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
-                    <!-- Filtro por categoría -->
-                    <Spinner
-                        android:id="@+id/spnFiltroCategoria"
+                    <!-- Filtro por fecha -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnFiltrarFecha"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginEnd="8dp"
-                        android:minHeight="48dp" />
+                        android:text="Filtrar por fecha"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        app:icon="@drawable/ic_calendar" />
 
-                    <!-- Filtro por stock -->
+                    <!-- Ordenar -->
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnFiltrarStock"
+                        android:id="@+id/btnOrdenar"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Stock"
+                        android:text="Ordenar"
                         style="@style/Widget.Material3.Button.OutlinedButton"
-                        app:icon="@drawable/ic_inventory" />
+                        app:icon="@drawable/ic_sort" />
 
                 </LinearLayout>
 
@@ -99,7 +102,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Resumen de productos -->
+            <!-- Resumen estadístico -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -113,7 +116,7 @@
                     android:orientation="horizontal"
                     android:padding="16dp">
 
-                    <!-- Total productos -->
+                    <!-- Total gastado -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -125,12 +128,45 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Total Productos"
+                            android:text="Total Gastado"
                             android:textAppearance="?attr/textAppearanceBodySmall"
                             android:textColor="@color/gray_600" />
 
                         <TextView
-                            android:id="@+id/tvTotalProductos"
+                            android:id="@+id/tvTotalGastado"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="S/ 0.00"
+                            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                            android:textStyle="bold"
+                            android:textColor="@color/green_600"
+                            android:layout_marginTop="4dp" />
+
+                    </LinearLayout>
+
+                    <!-- Número de compras -->
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="40dp"
+                        android:background="@color/gray_300" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Compras Realizadas"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="@color/gray_600" />
+
+                        <TextView
+                            android:id="@+id/tvTotalCompras"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
@@ -141,79 +177,11 @@
 
                     </LinearLayout>
 
-                    <!-- Separador -->
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="40dp"
-                        android:background="@color/gray_300" />
-
-                    <!-- Stock bajo -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="12dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Stock Bajo"
-                            android:textAppearance="?attr/textAppearanceBodySmall"
-                            android:textColor="@color/gray_600" />
-
-                        <TextView
-                            android:id="@+id/tvStockBajo"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                            android:textStyle="bold"
-                            android:textColor="@color/orange_600"
-                            android:layout_marginTop="4dp" />
-
-                    </LinearLayout>
-
-                    <!-- Separador -->
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="40dp"
-                        android:background="@color/gray_300" />
-
-                    <!-- Sin stock -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="12dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Sin Stock"
-                            android:textAppearance="?attr/textAppearanceBodySmall"
-                            android:textColor="@color/gray_600" />
-
-                        <TextView
-                            android:id="@+id/tvSinStock"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                            android:textStyle="bold"
-                            android:textColor="@color/red_600"
-                            android:layout_marginTop="4dp" />
-
-                    </LinearLayout>
-
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Lista de productos -->
+            <!-- Lista de compras -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -229,7 +197,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Todos los Productos"
+                        android:text="Últimas Compras"
                         android:textAppearance="?attr/textAppearanceTitleMedium"
                         android:textStyle="bold"
                         android:gravity="center"
@@ -237,24 +205,24 @@
                         android:background="?attr/colorPrimaryContainer"
                         android:textColor="?attr/colorOnPrimaryContainer" />
 
-                    <!-- Mensaje cuando no hay productos -->
+                    <!-- Mensaje cuando no hay compras -->
                     <TextView
                         android:id="@+id/tvMensajeVacio"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="No hay productos registrados"
+                        android:text="No hay compras registradas"
                         android:textAppearance="?attr/textAppearanceBodyMedium"
                         android:gravity="center"
                         android:padding="40dp"
                         android:visibility="gone" />
 
-                    <!-- RecyclerView para los productos -->
+                    <!-- RecyclerView para el historial -->
                     <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvProductos"
+                        android:id="@+id/rvHistorial"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="8dp"
-                        tools:listitem="@layout/item_producto" />
+                        tools:listitem="@layout/item_compra" />
 
                 </LinearLayout>
 
@@ -264,15 +232,14 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Botón flotante para agregar producto -->
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/fabAgregarProducto"
+    <!-- Botón flotante para nueva compra -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabNuevaCompra"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:text="Agregar Producto"
-        app:icon="@drawable/ic_add"
+        android:src="@drawable/ic_add"
         app:tint="@color/white"
         app:backgroundTint="?attr/colorPrimary"
         app:elevation="8dp" />

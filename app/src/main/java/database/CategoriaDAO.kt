@@ -44,25 +44,77 @@ class CategoriaDAO(context: Context) {
         db.close()
         return categorias
     }
+    // Dentro de CategoriaDAO.kt
+// (Asegúrate de que esta clase tenga las funciones insertarCategoria, etc.)
+
+    /**
+     * Obtiene todas las categorías (ID y nombre).
+     * @return Una lista de objetos Categoria.
+     */
+    fun obtenerTodasLasCategorias(): List<Categoria> {
+        val db = dbHelper.readableDatabase
+        val lista = mutableListOf<Categoria>()
+
+        val cursor = db.rawQuery(
+            "SELECT idCat, nombre FROM categorias ORDER BY nombre ASC",
+            null
+        )
+
+        while (cursor.moveToNext()) {
+            val id = cursor.getInt(cursor.getColumnIndexOrThrow("idCat"))
+            val nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre"))
+
+            lista.add(Categoria(idCat = id, nombre = nombre))
+        }
+
+        cursor.close()
+        db.close()
+        return lista
+    }
 
 
     //Obtiene una lista de solo los nombres de todas las categorías.
 
-    fun obtenerNombresCategorias(): List<String> {
-        val listaCategorias = mutableListOf<String>()
-        val db = dbHelper.readableDatabase
-        val cursor: Cursor = db.rawQuery("SELECT nombre FROM categorias ORDER BY nombre", null)
+    // Dentro de CategoriaDAO.kt
 
-        if (cursor.moveToFirst()) {
-            do {
-                val nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre"))
-                listaCategorias.add(nombre)
-            } while (cursor.moveToNext())
+    /**
+     * Obtiene solo los nombres de las categorías.
+     * @return Una lista de Strings (nombres de categorías).
+     */
+    fun obtenerNombresCategorias(): List<String> {
+        val db = dbHelper.readableDatabase
+        val lista = mutableListOf<String>()
+
+        val cursor = db.rawQuery(
+            "SELECT nombre FROM categorias ORDER BY nombre ASC",
+            null
+        )
+
+        while (cursor.moveToNext()) {
+            val nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre"))
+            lista.add(nombre)
         }
+
         cursor.close()
         db.close()
-        return listaCategorias
+        return lista
     }
+
+//    fun obtenerNombresCategorias(): List<String> {
+//        val listaCategorias = mutableListOf<String>()
+//        val db = dbHelper.readableDatabase
+//        val cursor: Cursor = db.rawQuery("SELECT nombre FROM categorias ORDER BY nombre", null)
+//
+//        if (cursor.moveToFirst()) {
+//            do {
+//                val nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre"))
+//                listaCategorias.add(nombre)
+//            } while (cursor.moveToNext())
+//        }
+//        cursor.close()
+//        db.close()
+//        return listaCategorias
+//    }
 
 
      //Obtiene el ID de una categoría a partir de su nombre.
@@ -97,6 +149,8 @@ class CategoriaDAO(context: Context) {
         db.close()
         return count > 0
     }
+
+
 
 
      //Elimina una categoría por ID

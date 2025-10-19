@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import com.example.mitiendita.ui.CarritoFragment
 import com.example.mitiendita.ui.CategoriaFragment
 import com.example.mitiendita.ui.InicioFragment
+import com.example.mitiendita.ui.ListaProductosFragment
 import com.example.mitiendita.ui.ProductosFragment
 import com.google.android.material.navigation.NavigationView
 
@@ -54,6 +55,8 @@ class Inicio : AppCompatActivity() {
                 R.id.itCategoria -> replaceFragment(CategoriaFragment())
                 R.id.itCarrito -> replaceFragment(CarritoFragment())
                 R.id.itAgregarProducto -> replaceFragment(ProductosFragment())
+                R.id.itProductos -> replaceFragment(ListaProductosFragment())
+
                 // Agrega más casos según tus necesidades
                 // R.id.itPerfil -> replaceFragment(PerfilFragment())
             }

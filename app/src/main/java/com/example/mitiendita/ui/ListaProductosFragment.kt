@@ -4,15 +4,16 @@ import adapter.ProductoAdapter
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.mitiendita.R
-import com.example.mitiendita.database.DetalleProductoDAO // ⬅️ Nuevo: DAO de lectura
-import com.example.mitiendita.database.CategoriaDAO // ⬅️ Nuevo: DAO para obtener nombres de categoría
+import com.example.mitiendita.database.CategoriaDAO
+import com.example.mitiendita.database.DetalleProductoDAO
+import com.example.mitiendita.databinding.FragmentListaProductosBinding // Asumiendo este nombre
 import com.example.mitiendita.entity.Producto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,123 +21,203 @@ import kotlinx.coroutines.withContext
 
 class ListaProductosFragment : Fragment(R.layout.fragment_lista_productos) {
 
-    private lateinit var rvHistorial: RecyclerView
-    private lateinit var ProductoAdapter: ProductoAdapter
+    private var _binding: FragmentListaProductosBinding? = null
+    private val binding get() = _binding!!
 
-    // 🔴 Inicializada en onCreate para evitar el error lateinit
-    private lateinit var listaProducto: MutableList<Producto>
+    private lateinit var productoAdapter: ProductoAdapter
+    private val productosOriginales = mutableListOf<Producto>() // Lista completa
+    private val productosFiltrados = mutableListOf<Producto>()  // Lista mostrada en el RecyclerView
 
-    // 🔴 Inicialización de DAOs
     private lateinit var detalleProductoDAO: DetalleProductoDAO
     private lateinit var categoriaDAO: CategoriaDAO
+    private val categoriasMap = mutableMapOf<String, Int>() // Nombre -> ID
 
-
-    // 🔴 CORRECCIÓN: Usamos el método correcto para inicializar variables no-vista
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // Inicialización de la lista de datos
-        listaProducto = mutableListOf()
-
-        // Inicialización de DAOs
-        detalleProductoDAO = DetalleProductoDAO(requireContext())
-        categoriaDAO = CategoriaDAO(requireContext())
-    }
-
-    // 🔴 CORRECCIÓN CLAVE: Usamos el override correcto (sin el super.onCreate(view, savedInstanceState) )
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        _binding = FragmentListaProductosBinding.bind(view)
 
-        // Inicialización de Vistas y Adapter
-        rvHistorial = view.findViewById(R.id.rvHistorial)
-        rvHistorial.layoutManager = LinearLayoutManager(requireContext())
+        detalleProductoDAO = DetalleProductoDAO(requireContext())
+        categoriaDAO = CategoriaDAO(requireContext())
 
-        // El adaptador usa la lista inicializada
-        ProductoAdapter = ProductoAdapter(listaProducto)
-        rvHistorial.adapter = ProductoAdapter
+        inicializarRecyclerView()
+        cargarDatosIniciales()
+        configurarEventos()
+    }
 
-        // Listener para el clic
-        ProductoAdapter.setOnItemClickListener { productoSeleccionado ->
-            // Usamos el idProd correcto de la entidad Producto
-            mostrarDetalleProducto(productoSeleccionado.idProd)
+    private fun inicializarRecyclerView() {
+        productoAdapter = ProductoAdapter(productosFiltrados)
+        binding.rvProductos.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = productoAdapter
         }
 
-        // Cargar datos
+        productoAdapter.setOnItemActionListener(object : ProductoAdapter.OnItemActionListener {
+            override fun onItemClick(producto: Producto) {
+                mostrarDetallesProducto(producto)
+            }
+            override fun onEditClick(producto: Producto) {
+                Toast.makeText(requireContext(), "Abrir Edición de ${producto.nombre}", Toast.LENGTH_SHORT).show()
+                // Implementar navegación a ProductosFragment con los datos del producto
+            }
+            override fun onDeleteClick(producto: Producto) {
+                mostrarDialogoEliminar(producto)
+            }
+        })
+    }
+
+    private fun cargarDatosIniciales() {
+        // Cargar Categorías para el Spinner
+        cargarCategoriasSpinner()
+
+        // Cargar Productos
         cargarProductos()
     }
 
-    // ===================================
-    // LÓGICA DE CARGA DE DATOS (CON DAO)
-    // ===================================
+    private fun configurarEventos() {
+        // Implementar listeners para la búsqueda, el Spinner y el botón de stock
+        binding.fabAgregarProducto.setOnClickListener {
+            Toast.makeText(requireContext(), "Navegar a Agregar Producto", Toast.LENGTH_SHORT).show()
+            // Implementar navegación al ProductosFragment
+        }
+
+        // Lógica de búsqueda (ej. al presionar ENTER)
+        binding.etBuscarProducto.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
+                aplicarFiltros()
+                true
+            } else {
+                false
+            }
+        }
+
+        // Lógica del Spinner (se activa al seleccionar un elemento)
+        // binding.spnFiltroCategoria.onItemSelectedListener = ...
+
+        // Lógica del botón de stock
+        binding.btnFiltrarStock.setOnClickListener {
+            aplicarFiltros(filtrarStockBajo = true)
+        }
+    }
+
+    // --- LÓGICA DE DATOS Y FILTROS ---
+
+    private fun cargarCategoriasSpinner() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val categoriasConId = categoriaDAO.obtenerCategoriasConId() // Asumiendo este método
+            withContext(Dispatchers.Main) {
+                val nombres = mutableListOf("Todas las categorías")
+                categoriasMap.clear()
+                categoriasMap["Todas las categorías"] = 0
+
+                categoriasConId.forEach { (id, nombre) ->
+                    categoriasMap[nombre] = id
+                    nombres.add(nombre)
+                }
+
+                val adapter = ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_spinner_dropdown_item,
+                    nombres
+                )
+                binding.spnFiltroCategoria.adapter = adapter
+            }
+        }
+    }
 
     private fun cargarProductos() {
-        // Usamos Corrutinas para no bloquear la UI
+        binding.tvMensajeVacio.visibility = View.GONE
         lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                // 🔴 USANDO DAO: Llamamos a la función con JOIN para obtener todos los productos
-                val productos = detalleProductoDAO.obtenerTodosLosProductosConCategoria()
+            val productos = detalleProductoDAO.obtenerTodosLosProductosConCategoria()
 
-                withContext(Dispatchers.Main) {
-                    // Limpiamos y añadimos los nuevos datos
-                    listaProducto.clear()
-                    listaProducto.addAll(productos)
-                    ProductoAdapter.notifyDataSetChanged()
+            withContext(Dispatchers.Main) {
+                productosOriginales.clear()
+                productosOriginales.addAll(productos)
 
-                    if (productos.isEmpty()) {
-                        Toast.makeText(requireContext(), "No hay productos registrados.", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("ListaProdFragment", "Error al cargar productos: ${e.message}", e)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "Error al cargar productos.", Toast.LENGTH_LONG).show()
+                actualizarEstadisticas(productos)
+                aplicarFiltros() // Mostrar todos los productos por defecto
+            }
+        }
+    }
+
+    private fun aplicarFiltros(filtrarStockBajo: Boolean = false) {
+        val busqueda = binding.etBuscarProducto.text.toString().trim().lowercase()
+        // Obtener ID de la categoría seleccionada del Spinner
+        // val categoriaSeleccionadaId = categoriasMap[binding.spnFiltroCategoria.selectedItem as String] ?: 0
+
+        val listaFiltrada = productosOriginales.filter { producto ->
+            // 1. Filtro de búsqueda por nombre/descripción
+            val coincideBusqueda = busqueda.isEmpty() ||
+                    producto.nombre.lowercase().contains(busqueda) ||
+                    producto.descripcion?.lowercase()?.contains(busqueda) == true
+
+            // 2. Filtro de categoría (si es necesario)
+            // val coincideCategoria = categoriaSeleccionadaId == 0 || producto.idCat == categoriaSeleccionadaId
+
+            // 3. Filtro de stock bajo
+            val coincideStock = if (filtrarStockBajo) producto.stock <= 10 else true
+
+            // Combine los filtros (ejemplo solo con búsqueda y stock bajo)
+            coincideBusqueda && coincideStock // && coincideCategoria
+        }
+
+        productosFiltrados.clear()
+        productosFiltrados.addAll(listaFiltrada)
+        productoAdapter.notifyDataSetChanged()
+
+        // Mostrar mensaje si la lista filtrada está vacía
+        binding.tvMensajeVacio.visibility = if (productosFiltrados.isEmpty()) View.VISIBLE else View.GONE
+        binding.rvProductos.visibility = if (productosFiltrados.isEmpty()) View.GONE else View.VISIBLE
+    }
+
+    private fun actualizarEstadisticas(productos: List<Producto>) {
+        val total = productos.size
+        val stockBajo = productos.count { it.stock > 0 && it.stock <= 10 }
+        val sinStock = productos.count { it.stock == 0 }
+
+        binding.tvTotalProductos.text = total.toString()
+        binding.tvStockBajo.text = stockBajo.toString()
+        binding.tvSinStock.text = sinStock.toString()
+    }
+
+    // --- LÓGICA DE INTERACCIÓN ---
+
+    private fun mostrarDetallesProducto(producto: Producto) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Detalles de ${producto.nombre}")
+            .setMessage("Precio: S/ ${String.format("%.2f", producto.precio)}\nStock: ${producto.stock}\nCategoría: ${producto.nombreCategoria}\nDescripción: ${producto.descripcion ?: "N/A"}")
+            .setPositiveButton("Aceptar", null)
+            .show()
+    }
+
+    private fun mostrarDialogoEliminar(producto: Producto) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Confirmar Eliminación")
+            .setMessage("¿Estás seguro de eliminar el producto '${producto.nombre}'?")
+            .setPositiveButton("Eliminar") { _, _ ->
+                eliminarProducto(producto)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun eliminarProducto(producto: Producto) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            // Asumiendo que tienes una función 'eliminarProducto' en tu ProductoDAO
+            val filasAfectadas = producto.idProd.let { detalleProductoDAO.eliminarProducto(it) }
+
+            withContext(Dispatchers.Main) {
+                if (filasAfectadas > 0) {
+                    Toast.makeText(requireContext(), "✅ Producto '${producto.nombre}' eliminado.", Toast.LENGTH_SHORT).show()
+                    cargarProductos() // Recargar la lista
+                } else {
+                    Toast.makeText(requireContext(), "❌ Error al eliminar el producto.", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
 
-    // =====================================
-    // LÓGICA PARA MOSTRAR DETALLE (CON DAO)
-    // =====================================
-
-    private fun mostrarDetalleProducto(idProd: Int) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                // 🔴 USANDO DAO: Obtenemos el producto por ID (con nombre de categoría incluido)
-                val producto = detalleProductoDAO.obtenerProductoPorId(idProd)
-
-                withContext(Dispatchers.Main) {
-                    if (producto != null) {
-                        // Construir el mensaje de detalle
-                        val detalleTexto = StringBuilder()
-                        detalleTexto.append("Nombre: ${producto.nombre}\n")
-                        detalleTexto.append("Descripción: ${producto.descripcion ?: "N/A"}\n")
-                        detalleTexto.append("Precio: $${String.format("%.2f", producto.precio)}\n")
-                        detalleTexto.append("Stock: ${producto.stock}\n")
-                        detalleTexto.append("Categoría: ${producto.nombreCategoria}\n")
-
-                        // Mostrar el AlertDialog
-                        AlertDialog.Builder(requireContext())
-                            .setTitle("Detalles del Producto")
-                            .setMessage(detalleTexto.toString())
-                            .setPositiveButton("Aceptar", null)
-                            .show()
-
-                    } else {
-                        Toast.makeText(requireContext(), "Producto no encontrado.", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("ListaProdFragment", "Error al mostrar detalle: ${e.message}", e)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "Error al obtener detalles.", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
-
-    // 🔴 NOTA: La lógica en tu código original para el `else` de `mostrarDetalleLista`
-    //          era errónea ya que el `if (detalles.isNotEmpty())` manejaba el caso
-    //          donde el producto EXISTE. El bloque `else` solo se ejecuta si el producto NO existe.
-    //          He simplificado la lógica para mostrar el detalle del producto encontrado.
 }
