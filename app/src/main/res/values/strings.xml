@@ -25,4 +25,9 @@
     <string name="menu_slideshow">Slideshow</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="imagen_producto">Imagen del producto</string>
+    <string name="seleccionar_imagen">Seleccionar Imagen</string>
+    <string name="guardar_producto">Guardar Producto</string>
+    <string name="precio_formato">$%.2f</string>
+
 </resources>

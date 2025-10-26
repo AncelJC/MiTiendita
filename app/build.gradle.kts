@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    kotlin("kapt")
 }
 
 android {
@@ -49,6 +50,12 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation("com.google.android.material:material:1.9.0")
+    // 💡 AÑADIR GLIDE
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    // Necesitas aplicar el plugin 'kotlin-kapt' en el bloque 'plugins' si no está.
+    // Aunque uses KTS, la dependencia de 'compiler' debe ir con 'kapt'.
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -1,11 +1,12 @@
 package com.example.mitiendita.entity
 
-data class Producto (
-    val id: Int,
+data class Producto(
+    val idProd: Int = 0,
     val nombre: String,
-    val descripcion: String,
+    val descripcion: String? = null, // Debe ser nullable
     val precio: Double,
-    val catecoria: String,
-    val imagen: String
-
+    val stock: Int,
+    val idCat: Int,
+    val nombreCategoria: String = "", // Debe tener valor por defecto
+    val imagen: String? = null // Debe ser nullable
 )
