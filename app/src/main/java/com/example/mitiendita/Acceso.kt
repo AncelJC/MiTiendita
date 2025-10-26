@@ -1,12 +1,10 @@
-// En Acceso.kt
 package com.example.mitiendita
 
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log // Para depuración
+import android.util.Log
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -26,100 +24,64 @@ class Acceso : AppCompatActivity() {
 
 
     private lateinit var btn_registrar: Button
-    private lateinit var btn_recuperar: Button
+    private lateinit var tv_recuperar: TextView
     private lateinit var btnIngresar: Button
 
     private lateinit var tietCorreo: TextInputEditText
-    private lateinit var tvPassword: TextInputEditText
+    private lateinit var tietPassword: TextInputEditText
 
     private lateinit var liCorreo: TextInputLayout
     private lateinit var liPassword: TextInputLayout
-    var tvRecuperar : TextView? = null
 
     private lateinit var ivllamada: ImageView
     private lateinit var ivInternet: ImageView
-
-    private val listaUsuarios = mutableListOf(
-        Usuario( 1, "Jose Martin", "Sanchez", "Flores", "jsanchez@cibertec.edu.pe", "123456", "Masculino", true),
-        Usuario( 2, "Jose Martin", "Sanchez", "Flores", "jsanchez", "123456", "Masculino", true),
-        Usuario(3, "admin", "admin", "admin", "admin", "123", "Masculino", true)
-
-    )
+    private lateinit var dbHelper: DBHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.acceso)
 
-        val db = DBHelper(this)
+        // Inicializar BD
+        dbHelper = DBHelper(this)
 
-        val etCorreo = findViewById<EditText>(R.id.tietCorreo)
-        val etPassword = findViewById<EditText>(R.id.tvPassword)
-        val btnIngresar = findViewById<Button>(R.id.btnLogin)
-        val btnRegistrar = findViewById<Button>(R.id.btnRegistrar)
+        // Enlazar vistas
+        tv_recuperar = findViewById(R.id.tvRecuperar)
+        btnIngresar = findViewById(R.id.btnIngresar)
+        btn_registrar = findViewById(R.id.btnRegistrar)
 
         tietCorreo = findViewById(R.id.tietCorreo)
-        tvPassword = findViewById(R.id.tvPassword)
+        tietPassword = findViewById(R.id.tietPassword) // Usando ID corregido del XML
         liCorreo = findViewById(R.id.liCorreo)
         liPassword = findViewById(R.id.liPassword)
-
-
 
         ivllamada = findViewById(R.id.ivllamada)
         ivInternet = findViewById(R.id.ivInternet)
 
+        // ----------------------------------------------------
+        // ACCIÓN CORREGIDA: Llama a la función validarCampos()
+        // ----------------------------------------------------
         btnIngresar.setOnClickListener {
             validarCampos()
         }
 
 
-//        btnIngresar.setOnClickListener {
-//            var correo = tietCorreo.text.toString()
-//            var password = etPassword.text.toString()
-//            val valido = db.validarUsuario(correo, password)
-//            if (valido) {
-//                Toast.makeText(this, "✅ Bienvenido", Toast.LENGTH_SHORT).show()
-//                startActivity(Intent(this, MainActivity::class.java))
-//            } else {
-//                Toast.makeText(this, "❌ Correo o contraseña incorrectos", Toast.LENGTH_SHORT).show()
-//            }
-//        }
-
-        btnRegistrar.setOnClickListener {
-            startActivity(Intent(this, Registro::class.java))
-        }
-
-
-
-        Log.d("AccesoActivity", "onCreate: Pantalla de Acceso cargada.")
-
-        btn_registrar = findViewById(R.id.btnRegistrar) // Asegúrate que este ID sea el de tu botón en acceso.xml
-        //Log.d("AccesoActivity", "onCreate: Botón btn_registrar encontrado.")
-
+        // Acción del botón Registrar
         btn_registrar.setOnClickListener {
-            //Log.d("AccesoActivity", "onClick: Botón btn_registrar presionado!")
             val intent = Intent(this, Registro::class.java)
-            var correo : String ="" + tietCorreo.text
-            intent.putExtra("", correo)
             startActivity(intent)
             Log.d("AccesoActivity", "onClick: Iniciando Registro Activity.")
-//            try {
-//                startActivity(intent)
-//                Log.d("AccesoActivity", "onClick: Iniciando Registro Activity.")
-//            } catch (e: Exception) {
-//                Log.e("AccesoActivity", "onClick: Error al iniciar Registro Activity", e)
-//            }
         }
 
-        tvRecuperar = findViewById(R.id.tvRecuperar)
-        tvRecuperar?.setOnClickListener {
+        // Acción de Recuperar Contraseña
+        tv_recuperar.setOnClickListener {
             val intent = Intent(this, Recuperar::class.java)
             startActivity(intent)
             Log.d("AccesoActivity", "onClick: Iniciando Recuperar Activity.")
         }
 
 
-        // Asegúrate que R.id.tvAcceso sea el ID del layout raíz o principal en acceso.xml
+        // Ajuste de insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -127,41 +89,37 @@ class Acceso : AppCompatActivity() {
             insets
         }
 
+        // Acción del icono de Internet
         ivInternet.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
-            intent.setData("https://github.com".toUri())
+            intent.data = "https://github.com".toUri()
             startActivity(intent)
         }
 
-//        ivllamada.setOnClickListener {
-//            val intent = Intent(Intent.ACTION_CALL)
-//            intent.data= "tel:+51957633603".toUri()
-//            startActivity(intent)
-//        }
-//
+        // Acción del icono de Llamada
         ivllamada.setOnClickListener {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE)
-            != PackageManager.PERMISSION_GRANTED) {
+                != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CALL_PHONE), 1)
-            }
-            else {
+            } else {
                 val intent = Intent(Intent.ACTION_CALL)
                 intent.data = "tel:+51957633603".toUri()
                 startActivity(intent)
             }
-
-
         }
 
-
-
+        Log.d("AccesoActivity", "onCreate: Pantalla de Acceso cargada.")
     }
 
+    // ----------------------------------------------------
+    // FUNCIÓN DE VALIDACIÓN Y LOGIN (Lógica centralizada)
+    // ----------------------------------------------------
     fun validarCampos() {
         val correo = tietCorreo.text.toString().trim()
-        val clave = tvPassword.text.toString().trim()
+        val clave = tietPassword.text.toString().trim()
         var error = false
 
+        // Validación de campos vacíos
         if (correo.isEmpty()) {
             liCorreo.error = "Ingrese su correo"
             error = true
@@ -176,69 +134,32 @@ class Acceso : AppCompatActivity() {
             liPassword.error = null
         }
 
-        if (error) return
+        if (error) return // Detener si hay errores de campos vacíos
 
-        // Validación con lista de usuarios "quemada"
-        var usuario: Usuario? = null
-        for (u in listaUsuarios) {
-            if ((u.correo == correo || u.correo == "$correo@cibertec.edu.pe") && u.contraseña == clave) {
-                usuario = u
-                break
-            }
-        }
+        // Validar contra la base de datos
+        val usuario: Usuario? = dbHelper.validarUsuario(correo, clave)
 
         if (usuario != null) {
             Toast.makeText(this, "✅ Bienvenido ${usuario.nombres}", Toast.LENGTH_SHORT).show()
+
+            // 💡 CAMBIO CRÍTICO AQUÍ: Navegación a Activity_Inicio
             startActivity(Intent(this, Inicio::class.java))
+            finish()
         } else {
-            Toast.makeText(this, "❌ Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "❌ Correo o contraseña incorrectos", Toast.LENGTH_SHORT).show()
         }
     }
 
-
-//    fun validarCampos(){
-//        val correo = tietCorreo.text.toString()
-//        val clave = tvPassword.text.toString()
-//        var error : Boolean = false
-//
-//        if (correo.isEmpty()){
-//            liCorreo.error = "Ingrese su correo"
-//        } else{
-//            liCorreo.error = null
-//        }
-//        if (clave.isEmpty()){
-//            liPassword.error = "Ingrese su contraseña"
-//        } else{
-//            liPassword.error = null
-//        }
-//        if(!error){
-//            startActivity(Intent(this, Productos::class.java))
-//        }
-//
-//        var usuario : Usuario ?= null
-////            for (i in 0 until listaUsuarios.size){
-////             if (listaUsuarios[i].correo == correo){
-////                 usuario = listaUsuarios[i]
-////             }
-//
-//
-////                }
-//        for (u in listaUsuarios){
-//            if(u.correo == (correo + "@cibertec.edu.pe")&& u.clave == clave )
-//                usuario = u
-//        }
-//        if (usuario != null){
-//            startActivity(Intent(this, Productos::class.java))
-//            Toast.makeText(this, "✅ Bienvenido" + usuario.nombre, Toast.LENGTH_SHORT).show()
-//            Toast.makeText(this, "✅ Bienvenido" + usuario.nombre, Toast.LENGTH_SHORT).show()
-//        }
-//        else{
-//            Toast.makeText(this, "El usuario o contraseña son incorrectos", Toast.LENGTH_SHORT).show()
-//        }
-//    }
-
-
-
-
+    // Manejo de la respuesta de solicitud de permisos
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            // Permiso concedido
+            val intent = Intent(Intent.ACTION_CALL)
+            intent.data = "tel:+51957633603".toUri()
+            startActivity(intent)
+        } else {
+            Toast.makeText(this, "Permiso de llamada denegado. No se puede realizar la llamada.", Toast.LENGTH_SHORT).show()
+        }
+    }
 }
-

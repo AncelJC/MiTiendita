@@ -59,11 +59,13 @@
         <item name="android:textColor">@color/gris1</item>
     </style>
 
-    <style name="boton" parent="Widget.Material3.Button.FilledTonalButton">
+    <style name="boton" >
         <item name="strokeWidth">2dp</item>
         <item name="strokeColor">@color/azul2</item>
+
         <item name="backgroundTint">@color/amarillo2</item>
         <item name="android:textColor">@color/azul2</item>
+
         <item name="fontFamily">@font/poppins_semi_bold</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textAllCaps">false</item>

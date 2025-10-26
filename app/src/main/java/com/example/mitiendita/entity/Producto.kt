@@ -7,6 +7,7 @@ data class Producto(
     val precio: Double,
     val stock: Int,
     val idCat: Int,
+    val codigo: String = "",
     val nombreCategoria: String = "", // Debe tener valor por defecto
     val imagen: String? = null // Debe ser nullable
 )

@@ -1,5 +1,6 @@
-package adapter
+package com.example.mitiendita.adapter
 
+import adapter.ProductoDiffCallback
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
@@ -7,41 +8,37 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mitiendita.R
 import com.example.mitiendita.entity.Producto
 import com.google.android.material.button.MaterialButton
-import com.bumptech.glide.Glide // Asumo que prefieres usar Glide para una mejor gestión de imágenes
+import com.bumptech.glide.Glide
 import java.text.NumberFormat
 import java.util.Currency
 import java.util.Locale
 
+// 1. Hereda de ListAdapter y usa ProductoDiffCallback
 class ProductoAdapter(
-    private val productosList: MutableList<Producto>
-) : RecyclerView.Adapter<ProductoAdapter.ProductoViewHolder>() {
+    // 2. Recibe la interfaz en el constructor
+    private val actionListener: OnItemActionListener
+) : ListAdapter<Producto, ProductoAdapter.ProductoViewHolder>(ProductoDiffCallback()) {
 
-
-    // Formateador de moneda para Soles Peruanos (S/) sin decimales.
+    // 3. Formato de moneda mejorado (2 decimales)
     private val formatoMoneda: NumberFormat =
         NumberFormat.getCurrencyInstance(Locale("es", "PE")).apply {
-            maximumFractionDigits = 0
+            maximumFractionDigits = 2
             currency = Currency.getInstance("PEN")
         }
 
-    // Define las acciones que el Fragment puede manejar
     interface OnItemActionListener {
         fun onEditClick(producto: Producto)
         fun onDeleteClick(producto: Producto)
         fun onItemClick(producto: Producto)
     }
 
-    private var actionListener: OnItemActionListener? = null
-
-    fun setOnItemActionListener(listener: OnItemActionListener) {
-        actionListener = listener
-    }
-
     inner class ProductoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        // Las referencias a las vistas se mantienen
         val ivProducto: ImageView = itemView.findViewById(R.id.ivProducto)
         val tvNombre: TextView = itemView.findViewById(R.id.tvNombre)
         val tvDescripcion: TextView = itemView.findViewById(R.id.tvDescripcion)
@@ -52,11 +49,11 @@ class ProductoAdapter(
         val btnEliminar: MaterialButton = itemView.findViewById(R.id.btnEliminar)
 
         init {
-            // Listener para el clic general en el ítem (e.g., para ver detalles)
             itemView.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    actionListener?.onItemClick(productosList[position])
+                    // Usa getItem() de ListAdapter
+                    actionListener.onItemClick(getItem(position))
                 }
             }
         }
@@ -72,48 +69,38 @@ class ProductoAdapter(
     }
 
     override fun onBindViewHolder(holder: ProductoViewHolder, position: Int) {
-        val producto = productosList[position]
+        // Usa getItem() de ListAdapter
+        val producto = getItem(position)
         val context = holder.itemView.context
 
         // 1. Datos de texto
         holder.tvNombre.text = producto.nombre
-        // Usar operador Elvis para manejar descripciones nulas
         holder.tvDescripcion.text = producto.descripcion ?: "Sin descripción"
-        // Usar operador Elvis para manejar categorías nulas
         holder.tvCategoria.text = producto.nombreCategoria
 
-        // Formato de precio (usando un string resource si está definido, si no, directo)
-        holder.tvPrecio.text = "S/ ${String.format("%.2f", producto.precio)}"
-        // Formato de stock
+        // Uso el formato de moneda mejorado
+        holder.tvPrecio.text = formatoMoneda.format(producto.precio)
         holder.tvStock.text = "Stock: ${producto.stock}"
 
         // 2. Lógica de Stock (Cambio de color)
-        val stockBajo = 10 // Define el umbral de stock bajo
-        // Utiliza ContextCompat para obtener colores
-        val color: Int
-        if (producto.stock == 0) {
-            color = ContextCompat.getColor(context, R.color.red_600)
-        } else if (producto.stock <= stockBajo) {
-            color = ContextCompat.getColor(context, R.color.orange_600)
-        } else {
-            color = ContextCompat.getColor(context, R.color.green_500)
+        val stockBajo = 10
+        val color: Int = when {
+            producto.stock == 0 -> ContextCompat.getColor(context, R.color.red_600)
+            producto.stock <= stockBajo -> ContextCompat.getColor(context, R.color.orange_600)
+            else -> ContextCompat.getColor(context, R.color.green_500)
         }
-        holder.tvStock.setBackgroundColor(color)
+        // Cambiamos el color del texto
+        holder.tvStock.setTextColor(color)
 
-        // 3. Carga de Imagen (Usando Glide o nativo)
+        // 3. Carga de Imagen
         val uriString = producto.imagen
-        if (uriString != null && uriString.isNotEmpty()) {
+        if (!uriString.isNullOrEmpty()) {
             try {
-                // Si tienes Glide, úsalo:
                 Glide.with(context)
                     .load(Uri.parse(uriString))
                     .placeholder(R.drawable.ic_box)
                     .error(R.drawable.ic_error)
                     .into(holder.ivProducto)
-
-                // Si NO quieres Glide, usa:
-                // holder.ivProducto.setImageURI(Uri.parse(uriString))
-
             } catch (e: Exception) {
                 holder.ivProducto.setImageResource(R.drawable.ic_error)
             }
@@ -122,23 +109,9 @@ class ProductoAdapter(
         }
 
         // 4. Listeners para botones de acción
-        holder.btnEditar.setOnClickListener {
-            actionListener?.onEditClick(producto)
-        }
-        holder.btnEliminar.setOnClickListener {
-            actionListener?.onDeleteClick(producto)
-        }
+        holder.btnEditar.setOnClickListener { actionListener.onEditClick(producto) }
+        holder.btnEliminar.setOnClickListener { actionListener.onDeleteClick(producto) }
     }
 
-    override fun getItemCount(): Int = productosList.size
-
-    // Función para actualizar la lista y aplicar filtros/búsqueda
-    fun updateData(newProducts: List<Producto>) {
-        // Limpia la lista actual
-        productosList.clear()
-        // Agrega los nuevos productos a la lista
-        productosList.addAll(newProducts)
-        // Notifica al adaptador que los datos han cambiado
-        notifyDataSetChanged()
-    }
+    // 5. Los métodos getItemCount() y updateData() ya no son necesarios
 }

@@ -1,37 +1,42 @@
 package com.example.mitiendita.ui
 
-import adapter.ProductoAdapter
+import com.example.mitiendita.adapter.ProductoAdapter
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mitiendita.R
-import com.example.mitiendita.database.CategoriaDAO
-import com.example.mitiendita.database.DetalleProductoDAO
-import com.example.mitiendita.databinding.FragmentListaProductosBinding // Asumiendo este nombre
+import com.example.mitiendita.database.CategoriaDAO // Asumiendo que existen
+import com.example.mitiendita.database.DetalleProductoDAO // Asumiendo que existen
+import com.example.mitiendita.databinding.FragmentListaProductosBinding
 import com.example.mitiendita.entity.Producto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ListaProductosFragment : Fragment(R.layout.fragment_lista_productos) {
+// 1. Implementa la interfaz OnItemActionListener
+class ListaProductosFragment : Fragment(R.layout.fragment_lista_productos), ProductoAdapter.OnItemActionListener {
 
     private var _binding: FragmentListaProductosBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var productoAdapter: ProductoAdapter
-    private val productosOriginales = mutableListOf<Producto>() // Lista completa
-    private val productosFiltrados = mutableListOf<Producto>()  // Lista mostrada en el RecyclerView
+
+    // Lista completa, ya no mutable (usada como fuente de datos)
+    private var productosOriginales: List<Producto> = emptyList()
 
     private lateinit var detalleProductoDAO: DetalleProductoDAO
     private lateinit var categoriaDAO: CategoriaDAO
     private val categoriasMap = mutableMapOf<String, Int>() // Nombre -> ID
+
+    // Estado del botón de filtro de Stock
+    private var estaFiltrandoPorStockBajo: Boolean = false
+    private val UMBRAL_STOCK_BAJO = 10
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -46,59 +51,43 @@ class ListaProductosFragment : Fragment(R.layout.fragment_lista_productos) {
     }
 
     private fun inicializarRecyclerView() {
-        // Configurar el RecyclerView
-        productoAdapter = ProductoAdapter(productosFiltrados)
+        // 2. Inicializar el Adapter, pasándole 'this' como listener
+        productoAdapter = ProductoAdapter(this)
         binding.rvProductos.apply {
-            //
             layoutManager = LinearLayoutManager(requireContext())
             adapter = productoAdapter
         }
-
-        productoAdapter.setOnItemActionListener(object : ProductoAdapter.OnItemActionListener {
-            override fun onItemClick(producto: Producto) {
-                mostrarDetallesProducto(producto)
-            }
-            override fun onEditClick(producto: Producto) {
-                Toast.makeText(requireContext(), "Abrir Edición de ${producto.nombre}", Toast.LENGTH_SHORT).show()
-                // Implementar navegación a ProductosFragment con los datos del producto
-            }
-            override fun onDeleteClick(producto: Producto) {
-                mostrarDialogoEliminar(producto)
-            }
-        })
     }
 
     private fun cargarDatosIniciales() {
-        // Cargar Categorías para el Spinner
         cargarCategoriasSpinner()
-
-        // Cargar Productos
         cargarProductos()
     }
 
     private fun configurarEventos() {
-        // Implementar listeners para la búsqueda, el Spinner y el botón de stock
         binding.fabAgregarProducto.setOnClickListener {
             Toast.makeText(requireContext(), "Navegar a Agregar Producto", Toast.LENGTH_SHORT).show()
-            // Implementar navegación al ProductosFragment
+            // findNavController().navigate(R.id.action_listaProductos_to_crearProducto)
         }
 
-        // Lógica de búsqueda (ej. al presionar ENTER)
-        binding.etBuscarProducto.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
+        // 3. Listener de búsqueda en tiempo real
+        binding.etBuscarProducto.doAfterTextChanged {
+            aplicarFiltros()
+        }
+
+        // 4. Listener del Spinner de categoría
+        binding.spnFiltroCategoria.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
                 aplicarFiltros()
-                true
-            } else {
-                false
             }
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
         }
 
-        // Lógica del Spinner (se activa al seleccionar un elemento)
-        // binding.spnFiltroCategoria.onItemSelectedListener = ...
-
-        // Lógica del botón de stock
+        // 5. Listener del botón de stock (alterna el estado)
         binding.btnFiltrarStock.setOnClickListener {
-            aplicarFiltros(filtrarStockBajo = true)
+            estaFiltrandoPorStockBajo = !estaFiltrandoPorStockBajo
+            binding.btnFiltrarStock.text = if (estaFiltrandoPorStockBajo) "Ver Todos" else "Stock Bajo"
+            aplicarFiltros()
         }
     }
 
@@ -106,7 +95,7 @@ class ListaProductosFragment : Fragment(R.layout.fragment_lista_productos) {
 
     private fun cargarCategoriasSpinner() {
         lifecycleScope.launch(Dispatchers.IO) {
-            val categoriasConId = categoriaDAO.obtenerCategoriasConId() // Asumiendo este método
+            val categoriasConId = categoriaDAO.obtenerCategoriasConId() // Asumiendo List<Pair<Int, String>>
             withContext(Dispatchers.Main) {
                 val nombres = mutableListOf("Todas las categorías")
                 categoriasMap.clear()
@@ -133,53 +122,68 @@ class ListaProductosFragment : Fragment(R.layout.fragment_lista_productos) {
             val productos = detalleProductoDAO.obtenerTodosLosProductosConCategoria()
 
             withContext(Dispatchers.Main) {
-                productosOriginales.clear()
-                productosOriginales.addAll(productos)
-
+                productosOriginales = productos // Actualiza la lista original
                 actualizarEstadisticas(productos)
-                aplicarFiltros() // Mostrar todos los productos por defecto
+                aplicarFiltros()
             }
         }
     }
 
-    private fun aplicarFiltros(filtrarStockBajo: Boolean = false) {
+    private fun aplicarFiltros() {
         val busqueda = binding.etBuscarProducto.text.toString().trim().lowercase()
-        // Obtener ID de la categoría seleccionada del Spinner
-        // val categoriaSeleccionadaId = categoriasMap[binding.spnFiltroCategoria.selectedItem as String] ?: 0
+        val categoriaSeleccionadaNombre = binding.spnFiltroCategoria.selectedItem as? String ?: "Todas las categorías"
+        val categoriaSeleccionadaId = categoriasMap[categoriaSeleccionadaNombre] ?: 0
 
         val listaFiltrada = productosOriginales.filter { producto ->
-            // 1. Filtro de búsqueda por nombre/descripción
+            // 1. Filtro de búsqueda (nombre, descripción, código)
             val coincideBusqueda = busqueda.isEmpty() ||
                     producto.nombre.lowercase().contains(busqueda) ||
-                    producto.descripcion?.lowercase()?.contains(busqueda) == true
+                    producto.descripcion?.lowercase()?.contains(busqueda) == true ||
+                    producto.codigo.lowercase().contains(busqueda)
 
-            // 2. Filtro de categoría (si es necesario)
-            // val coincideCategoria = categoriaSeleccionadaId == 0 || producto.idCat == categoriaSeleccionadaId
+            // 2. Filtro de categoría
+            val coincideCategoria = categoriaSeleccionadaId == 0 || producto.idCat == categoriaSeleccionadaId
 
-            // 3. Filtro de stock bajo
-            val coincideStock = if (filtrarStockBajo) producto.stock <= 10 else true
+            // 3. Filtro de stock bajo (usa el estado del botón)
+            val coincideStock = if (estaFiltrandoPorStockBajo) {
+                producto.stock > 0 && producto.stock <= UMBRAL_STOCK_BAJO
+            } else {
+                true // Si no está filtrando, coincide con todos
+            }
 
-            // Combine los filtros (ejemplo solo con búsqueda y stock bajo)
-            coincideBusqueda && coincideStock // && coincideCategoria
+            coincideBusqueda && coincideCategoria && coincideStock
         }
 
-        productosFiltrados.clear()
-        productosFiltrados.addAll(listaFiltrada)
-        productoAdapter.notifyDataSetChanged()
+        // 6. CAMBIO CRUCIAL: Usar submitList()
+        productoAdapter.submitList(listaFiltrada)
 
-        // Mostrar mensaje si la lista filtrada está vacía
-        binding.tvMensajeVacio.visibility = if (productosFiltrados.isEmpty()) View.VISIBLE else View.GONE
-        binding.rvProductos.visibility = if (productosFiltrados.isEmpty()) View.GONE else View.VISIBLE
+        binding.tvMensajeVacio.visibility = if (listaFiltrada.isEmpty()) View.VISIBLE else View.GONE
+        binding.rvProductos.visibility = if (listaFiltrada.isEmpty()) View.GONE else View.VISIBLE
     }
 
     private fun actualizarEstadisticas(productos: List<Producto>) {
         val total = productos.size
-        val stockBajo = productos.count { it.stock > 0 && it.stock <= 10 }
+        val stockBajo = productos.count { it.stock > 0 && it.stock <= UMBRAL_STOCK_BAJO }
         val sinStock = productos.count { it.stock == 0 }
 
         binding.tvTotalProductos.text = total.toString()
         binding.tvStockBajo.text = stockBajo.toString()
         binding.tvSinStock.text = sinStock.toString()
+    }
+
+    // --- IMPLEMENTACIÓN DE LA INTERFAZ ProductoAdapter.OnItemActionListener ---
+
+    override fun onItemClick(producto: Producto) {
+        mostrarDetallesProducto(producto)
+    }
+
+    override fun onEditClick(producto: Producto) {
+        Toast.makeText(requireContext(), "Abrir Edición de ${producto.nombre}", Toast.LENGTH_SHORT).show()
+        // findNavController().navigate(R.id.action_listaProductos_to_editarProducto, bundle)
+    }
+
+    override fun onDeleteClick(producto: Producto) {
+        mostrarDialogoEliminar(producto)
     }
 
     // --- LÓGICA DE INTERACCIÓN ---
@@ -205,7 +209,7 @@ class ListaProductosFragment : Fragment(R.layout.fragment_lista_productos) {
 
     private fun eliminarProducto(producto: Producto) {
         lifecycleScope.launch(Dispatchers.IO) {
-            // Asumiendo que tienes una función 'eliminarProducto' en tu ProductoDAO
+            // Usando 'idProducto' corregido
             val filasAfectadas = producto.idProd.let { detalleProductoDAO.eliminarProducto(it) }
 
             withContext(Dispatchers.Main) {
@@ -218,8 +222,6 @@ class ListaProductosFragment : Fragment(R.layout.fragment_lista_productos) {
             }
         }
     }
-
-
 
     override fun onDestroyView() {
         super.onDestroyView()

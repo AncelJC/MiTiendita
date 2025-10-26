@@ -159,7 +159,6 @@
             android:textAllCaps="false"
             app:icon="@drawable/ic_guardar"
             app:iconGravity="textStart"
-            app:iconPadding="8dp"
-            style="@style/Widget.Material3.Button.FilledTonalButton"/>
+            app:iconPadding="8dp"/>
     </LinearLayout>
 </ScrollView>

@@ -27,6 +27,12 @@ android {
             )
         }
     }
+
+    buildFeatures {
+        viewBinding = true
+    }
+
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -50,8 +56,15 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
-    implementation("com.google.android.material:material:1.9.0")
-    // 💡 AÑADIR GLIDE
+
+
+    //Dependencia de RecyclerView (para ListAdapter y DiffUtil)
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    implementation("com.google.android.material:material:1.11.0")
+
+    //implementation("com.google.android.material:material:1.9.0")
+    //Dependencia de Glide, para cargar imagenes
     implementation("com.github.bumptech.glide:glide:4.16.0")
     // Necesitas aplicar el plugin 'kotlin-kapt' en el bloque 'plugins' si no está.
     // Aunque uses KTS, la dependencia de 'compiler' debe ir con 'kapt'.
