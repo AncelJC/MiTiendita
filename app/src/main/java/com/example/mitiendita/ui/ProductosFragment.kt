@@ -26,18 +26,19 @@ class ProductosFragment : Fragment() {
     private var _binding: FragmentProductosBinding? = null
     private val binding get() = _binding!!
 
-    // 🔴 CAMBIO: Usamos CategoriaDAO para la lectura de categorías
+    // Usamos CategoriaDAO para la lectura de categorías
     private lateinit var categoriaDAO: CategoriaDAO
+    // Usamos ProductoDAO para la escritura de productos
     private lateinit var productoDAO: ProductoDAO
-
+    // Mapa para mantener el ID de cada categoría
     private var imagenSeleccionada: String? = null
     private val categoriasMap = mutableMapOf<String, Int>() // Mapa: Nombre -> ID
 
     // Contract para seleccionar imagen
-    private val seleccionarImagen = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
+    private val seleccionarImagen = registerForActivityResult( // ⬅️ Usamos el contrato
+        ActivityResultContracts.StartActivityForResult() // ⬅️ Usamos el contrato
+    ) { result -> // ⬅️ Usamos el contrato
+        if (result.resultCode == Activity.RESULT_OK) { // ⬅️ Usamos el contrato
             result.data?.data?.let { uri ->
                 val contentResolver = requireContext().contentResolver
                 val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION

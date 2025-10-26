@@ -31,7 +31,7 @@ class Inicio : AppCompatActivity() {
         nvMenu = findViewById(R.id.nvMenu)
         ivMenu = findViewById(R.id.ivMenu)
 
-        // 💡 Ajuste: Usar el listener para aplicar padding a la IV del menú
+        // Usar el listener para aplicar padding a la IV del menú
         // Esto asegura que el icono no quede detrás de la barra de estado del sistema.
         ViewCompat.setOnApplyWindowInsetsListener(ivMenu) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

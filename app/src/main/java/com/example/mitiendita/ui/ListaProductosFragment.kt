@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mitiendita.R
 import com.example.mitiendita.database.CategoriaDAO
@@ -45,8 +46,10 @@ class ListaProductosFragment : Fragment(R.layout.fragment_lista_productos) {
     }
 
     private fun inicializarRecyclerView() {
+        // Configurar el RecyclerView
         productoAdapter = ProductoAdapter(productosFiltrados)
         binding.rvProductos.apply {
+            //
             layoutManager = LinearLayoutManager(requireContext())
             adapter = productoAdapter
         }
@@ -215,6 +218,8 @@ class ListaProductosFragment : Fragment(R.layout.fragment_lista_productos) {
             }
         }
     }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

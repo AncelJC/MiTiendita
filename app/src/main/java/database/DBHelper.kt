@@ -152,9 +152,9 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "tiendita.db", null
     }
 
 
-    /**
-     * Inserta categorías de prueba si la tabla está vacía.
-     */
+
+     //Inserta categorías de prueba si la tabla está vacía.
+
     private fun insertarCategoriasIniciales(db: SQLiteDatabase) {
         val categorias = listOf("Electrónica", "Ropa", "Alimentos", "Hogar", "Juguetes")
 
@@ -290,13 +290,9 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "tiendita.db", null
         return result
     }
 
-    // ============================
-    // MÉTODOS UTILITARIOS
-    // ============================
 
-    /**
-     * Obtiene el conteo de registros en una tabla
-     */
+     //Obtiene el conteo de registros en una tabla
+
     fun obtenerConteoTabla(nombreTabla: String): Int {
         val db = readableDatabase
         val cursor = db.rawQuery("SELECT COUNT(*) FROM $nombreTabla", null)
@@ -307,9 +303,9 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "tiendita.db", null
         return count
     }
 
-    /**
-     * Verifica si la base de datos está vacía
-     */
+
+     //Verifica si la base de datos está vacía
+
     fun estaBaseDeDatosVacia(): Boolean {
         val tablas = listOf("usuarios", "categorias", "productos")
         return tablas.all { obtenerConteoTabla(it) == 0 }

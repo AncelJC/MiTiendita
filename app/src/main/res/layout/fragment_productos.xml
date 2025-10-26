@@ -137,8 +137,9 @@
                 android:layout_width="90dp"
                 android:layout_height="90dp"
                 android:scaleType="centerCrop"
-                android:background="@drawable/image_placeholder_bg"
-                android:contentDescription="@string/imagen_producto"/>
+                android:background="@drawable/ic_producto"
+                android:contentDescription="@string/imagen_producto"
+                app:tint="@color/blue" />
 
             <Button
                 android:id="@+id/btnSeleccionarImagen"
