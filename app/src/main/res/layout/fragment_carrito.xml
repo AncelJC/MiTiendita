@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CartFragment"
+    tools:context=".ui.CarritoFragment"
     android:padding="16dp">
 
     <TextView
@@ -28,7 +28,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/tv_cart_total"
-        tools:listitem="@layout/item_cart_product"
+        tools:listitem="@layout/item_producto"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     <TextView

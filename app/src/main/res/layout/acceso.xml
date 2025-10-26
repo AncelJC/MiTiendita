@@ -41,7 +41,6 @@
             android:layout_height="wrap_content"
             android:id="@+id/liCorreo"
             android:layout_marginTop="16dp"
-            app:suffixText="\@cibertec.edu.pe"
             app:boxCornerRadiusBottomEnd="16dp"
             app:boxCornerRadiusBottomStart="16dp"
             app:boxCornerRadiusTopEnd="16dp"

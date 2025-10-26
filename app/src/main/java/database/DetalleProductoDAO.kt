@@ -25,7 +25,6 @@ class DetalleProductoDAO(context: Context) {
         var producto: Producto? = null
 
         if (cursor.moveToFirst()) {
-            // Helper para obtener String, devolviendo null si el valor es DB Null
             val descripcion = cursor.getString(cursor.getColumnIndexOrThrow("descripcion"))
             val imagen = cursor.getString(cursor.getColumnIndexOrThrow("imagen"))
             val nombreCategoria = cursor.getString(cursor.getColumnIndexOrThrow("nombreCategoria"))
@@ -33,14 +32,11 @@ class DetalleProductoDAO(context: Context) {
             producto = Producto(
                 idProd = cursor.getInt(cursor.getColumnIndexOrThrow("idProd")),
                 nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre")),
-                // 💡 CORREGIDO: Usamos la variable local 'descripcion' (String? )
                 descripcion = descripcion,
                 precio = cursor.getDouble(cursor.getColumnIndexOrThrow("precio")),
                 stock = cursor.getInt(cursor.getColumnIndexOrThrow("stock")),
                 idCat = cursor.getInt(cursor.getColumnIndexOrThrow("idCat")),
-                // 💡 CORREGIDO: Usamos el parámetro correcto 'nombreCategoria'
-                nombreCategoria = nombreCategoria ?: "", // Maneja null si la categoría no existe
-                // 💡 CORREGIDO: Usamos la variable local 'imagen' (String? )
+                nombreCategoria = nombreCategoria ?: "",
                 imagen = imagen
             )
         }
@@ -67,7 +63,6 @@ class DetalleProductoDAO(context: Context) {
         )
 
         while (cursor.moveToNext()) {
-            // Helper para obtener String, devolviendo null si el valor es DB Null
             val descripcion = cursor.getString(cursor.getColumnIndexOrThrow("descripcion"))
             val imagen = cursor.getString(cursor.getColumnIndexOrThrow("imagen"))
             val nombreCategoria = cursor.getString(cursor.getColumnIndexOrThrow("nombreCategoria"))
@@ -76,14 +71,11 @@ class DetalleProductoDAO(context: Context) {
                 Producto(
                     idProd = cursor.getInt(cursor.getColumnIndexOrThrow("idProd")),
                     nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre")),
-                    // 💡 CORREGIDO: Usamos la variable local 'descripcion' (String? )
                     descripcion = descripcion,
                     precio = cursor.getDouble(cursor.getColumnIndexOrThrow("precio")),
                     stock = cursor.getInt(cursor.getColumnIndexOrThrow("stock")),
                     idCat = cursor.getInt(cursor.getColumnIndexOrThrow("idCat")),
-                    // 💡 CORREGIDO: Usamos el parámetro correcto 'nombreCategoria'
-                    nombreCategoria = nombreCategoria ?: "", // Maneja null si la categoría no existe
-                    // 💡 CORREGIDO: Usamos la variable local 'imagen' (String? )
+                    nombreCategoria = nombreCategoria ?: "",
                     imagen = imagen
                 )
             )
@@ -93,22 +85,17 @@ class DetalleProductoDAO(context: Context) {
         return lista
     }
 
-    // ... código anterior de la clase DetalleProductoDAO ...
-
     /**
      * Elimina un producto de la base de datos por su ID.
-     * @return El número de filas eliminadas (debería ser 1 si tiene éxito).
+     * @return El número de filas eliminadas.
      */
     fun eliminarProducto(idProducto: Int): Int {
-        val db = dbHelper.writableDatabase // Necesita permisos de escritura
-
-        // Ejecuta la eliminación
+        val db = dbHelper.writableDatabase
         val filasAfectadas = db.delete(
-            "productos", // Nombre de la tabla
-            "idProd = ?", // Cláusula WHERE
-            arrayOf(idProducto.toString()) // Argumentos WHERE
+            "productos",
+            "idProd = ?",
+            arrayOf(idProducto.toString())
         )
-
         db.close()
         return filasAfectadas
     }
@@ -140,5 +127,4 @@ class DetalleProductoDAO(context: Context) {
         db.close()
         return stats
     }
-
 }

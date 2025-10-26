@@ -12,10 +12,21 @@ import com.example.mitiendita.R
 import com.example.mitiendita.entity.Producto
 import com.google.android.material.button.MaterialButton
 import com.bumptech.glide.Glide // Asumo que prefieres usar Glide para una mejor gestión de imágenes
+import java.text.NumberFormat
+import java.util.Currency
+import java.util.Locale
 
 class ProductoAdapter(
     private val productosList: MutableList<Producto>
 ) : RecyclerView.Adapter<ProductoAdapter.ProductoViewHolder>() {
+
+
+    // Formateador de moneda para Soles Peruanos (S/) sin decimales.
+    private val formatoMoneda: NumberFormat =
+        NumberFormat.getCurrencyInstance(Locale("es", "PE")).apply {
+            maximumFractionDigits = 0
+            currency = Currency.getInstance("PEN")
+        }
 
     // Define las acciones que el Fragment puede manejar
     interface OnItemActionListener {
@@ -68,14 +79,17 @@ class ProductoAdapter(
         holder.tvNombre.text = producto.nombre
         // Usar operador Elvis para manejar descripciones nulas
         holder.tvDescripcion.text = producto.descripcion ?: "Sin descripción"
+        // Usar operador Elvis para manejar categorías nulas
         holder.tvCategoria.text = producto.nombreCategoria
 
         // Formato de precio (usando un string resource si está definido, si no, directo)
         holder.tvPrecio.text = "S/ ${String.format("%.2f", producto.precio)}"
+        // Formato de stock
         holder.tvStock.text = "Stock: ${producto.stock}"
 
         // 2. Lógica de Stock (Cambio de color)
         val stockBajo = 10 // Define el umbral de stock bajo
+        // Utiliza ContextCompat para obtener colores
         val color: Int
         if (producto.stock == 0) {
             color = ContextCompat.getColor(context, R.color.red_600)
@@ -120,8 +134,11 @@ class ProductoAdapter(
 
     // Función para actualizar la lista y aplicar filtros/búsqueda
     fun updateData(newProducts: List<Producto>) {
+        // Limpia la lista actual
         productosList.clear()
+        // Agrega los nuevos productos a la lista
         productosList.addAll(newProducts)
+        // Notifica al adaptador que los datos han cambiado
         notifyDataSetChanged()
     }
 }

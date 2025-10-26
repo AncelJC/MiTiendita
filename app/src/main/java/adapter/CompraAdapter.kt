@@ -1,0 +1,6 @@
+package adapter
+
+class CompraAdapter {
+
+
+}

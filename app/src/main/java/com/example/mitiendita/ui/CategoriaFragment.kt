@@ -13,7 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mitiendita.database.CategoriaDAO
 import com.example.mitiendita.databinding.FragmentCategoriaBinding
-import com.example.mitiendita.entity.Categoria // ⬅️ Nuevo Import
+import com.example.mitiendita.entity.Categoria
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -59,7 +59,7 @@ class CategoriaFragment : Fragment() {
             adapter = categoriaAdapter
         }
 
-        // 🟢 Configurar los listeners para Editar/Eliminar
+        // Configurar los listeners para Editar/Eliminar
         categoriaAdapter.setOnItemActionListener(object : CategoriaAdapter.OnItemActionListener {
             override fun onEditClick(categoria: Categoria) {
                 // Lógica para abrir diálogo de edición
@@ -72,7 +72,6 @@ class CategoriaFragment : Fragment() {
         })
     }
 
-    // ... (guardarCategoria() se mantiene igual, solo llama a cargarYMostrarCategorias() al final)
 
     private fun guardarCategoria() {
         val nombre = binding.etNombreCategoria.text.toString().trim()
