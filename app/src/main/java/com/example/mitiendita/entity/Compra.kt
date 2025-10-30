@@ -7,7 +7,7 @@ package com.example.mitiendita.entity
 //
 data class Compra (
     val idCompra: Int,
-    val fecha: String,
     val total: Double,
+    val fecha: String,
     val idUsua: Int
 )

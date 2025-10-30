@@ -2,7 +2,6 @@ package com.example.mitiendita.ui
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,8 +12,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.mitiendita.R
-import com.example.mitiendita.database.CategoriaDAO // ⬅️ CAMBIO: Importar el DAO de Categorías
-import com.example.mitiendita.database.ProductoDAO
+import com.example.mitiendita.dao.ProductoDAO
+import com.example.mitiendita.database.CategoriaDAO
 import com.example.mitiendita.databinding.FragmentProductosBinding
 import com.example.mitiendita.entity.Producto
 import kotlinx.coroutines.Dispatchers
@@ -26,22 +25,23 @@ class ProductosFragment : Fragment() {
     private var _binding: FragmentProductosBinding? = null
     private val binding get() = _binding!!
 
-    // Usamos CategoriaDAO para la lectura de categorías
     private lateinit var categoriaDAO: CategoriaDAO
-    // Usamos ProductoDAO para la escritura de productos
     private lateinit var productoDAO: ProductoDAO
-    // Mapa para mantener el ID de cada categoría
-    private var imagenSeleccionada: String? = null
-    private val categoriasMap = mutableMapOf<String, Int>() // Mapa: Nombre -> ID
 
-    // Contract para seleccionar imagen
-    private val seleccionarImagen = registerForActivityResult( // ⬅️ Usamos el contrato
-        ActivityResultContracts.StartActivityForResult() // ⬅️ Usamos el contrato
-    ) { result -> // ⬅️ Usamos el contrato
-        if (result.resultCode == Activity.RESULT_OK) { // ⬅️ Usamos el contrato
+    private var imagenSeleccionada: String? = null
+    private val categoriasMap = mutableMapOf<String, Int>()
+
+    // Producto actual (para edición)
+    private var productoActual: Producto? = null
+
+    private val seleccionarImagen = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
                 val contentResolver = requireContext().contentResolver
-                val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                val takeFlags: Int =
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 contentResolver.takePersistableUriPermission(uri, takeFlags)
 
                 imagenSeleccionada = uri.toString()
@@ -62,8 +62,7 @@ class ProductosFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 🔴 Inicialización de DAOs
-        categoriaDAO = CategoriaDAO(requireContext()) // ⬅️ Usamos CategoriaDAO
+        categoriaDAO = CategoriaDAO(requireContext())
         productoDAO = ProductoDAO(requireContext())
 
         inicializarSpinnerCategorias()
@@ -73,7 +72,6 @@ class ProductosFragment : Fragment() {
     private fun inicializarSpinnerCategorias() {
         lifecycleScope.launch {
             try {
-                // 🔴 CORREGIDO: Usamos categoriaDAO.obtenerCategoriasConId()
                 val categoriasConId = withContext(Dispatchers.IO) {
                     categoriaDAO.obtenerCategoriasConId()
                 }
@@ -81,8 +79,6 @@ class ProductosFragment : Fragment() {
                 withContext(Dispatchers.Main) {
                     if (categoriasConId.isNotEmpty()) {
                         val nombresCategorias = mutableListOf<String>()
-
-                        // Llenar el mapa y la lista de nombres para el Spinner
                         categoriasConId.forEach { (id, nombre) ->
                             categoriasMap[nombre] = id
                             nombresCategorias.add(nombre)
@@ -102,9 +98,7 @@ class ProductosFragment : Fragment() {
                     }
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    mostrarMensaje("Error al cargar categorías: ${e.message}")
-                }
+                mostrarMensaje("Error al cargar categorías: ${e.message}")
             }
         }
     }
@@ -138,23 +132,18 @@ class ProductosFragment : Fragment() {
         val stockTexto = binding.tietStockProd.text.toString().trim()
         val categoriaSeleccionada = binding.spnCategoria.selectedItem as? String
 
-        // ... (Validaciones)
         if (nombre.isEmpty()) {
             mostrarErrorCampo(binding.tietNombreProd, "El nombre del producto es obligatorio")
             return
         }
-        binding.tietNombreProd.error = null
-
         if (precioTexto.isEmpty()) {
             mostrarErrorCampo(binding.tietPrecioProd, "El precio es obligatorio")
             return
         }
-
         if (stockTexto.isEmpty()) {
             mostrarErrorCampo(binding.tietStockProd, "El stock es obligatorio")
             return
         }
-
         if (categoriaSeleccionada == null) {
             mostrarMensaje("Selecciona una categoría")
             return
@@ -167,23 +156,17 @@ class ProductosFragment : Fragment() {
             mostrarErrorCampo(binding.tietPrecioProd, "Ingresa un precio válido")
             return
         }
-        binding.tietPrecioProd.error = null
-
         if (stock == null || stock < 0) {
             mostrarErrorCampo(binding.tietStockProd, "Ingresa un stock válido")
             return
         }
-        binding.tietStockProd.error = null
 
-
-        // Obtener ID de la categoría seleccionada
         val idCategoria = categoriasMap[categoriaSeleccionada] ?: -1
         if (idCategoria == -1) {
-            mostrarMensaje("Error: Categoría no válida (ID no encontrado)")
+            mostrarMensaje("Error: Categoría no válida")
             return
         }
 
-        // Guardar producto
         guardarProducto(nombre, descripcion, precio, stock, idCategoria, imagenSeleccionada)
     }
 
@@ -195,24 +178,26 @@ class ProductosFragment : Fragment() {
         idCategoria: Int,
         imagen: String?
     ) {
+        // Para un nuevo producto, usar idProd = 0 (la base de datos asignará uno automáticamente)
         val nuevoProducto = Producto(
+            idProd = 0, // ID temporal para nuevo producto
             nombre = nombre,
             descripcion = descripcion.ifEmpty { null },
             precio = precio,
             stock = stock,
-            idCat = idCategoria,
             imagen = imagen,
+            idCat = idCategoria,
+            activo = true,
+            unidadMedida = "unidad", // Valor por defecto
             nombreCategoria = ""
         )
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // Usamos el PRODUCTODAO para la operación de escritura
                 val id = productoDAO.insertarProducto(nuevoProducto)
-
                 withContext(Dispatchers.Main) {
                     if (id > 0) {
-                        mostrarMensaje("✅ Producto '$nombre' guardado exitosamente (ID: $id)")
+                        mostrarMensaje("✅ Producto '$nombre' guardado exitosamente")
                         limpiarFormulario()
                     } else {
                         mostrarMensaje("❌ Error al guardar el producto")
@@ -220,10 +205,128 @@ class ProductosFragment : Fragment() {
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    mostrarMensaje("❌ Error al guardar en BD: ${e.message}")
+                    mostrarMensaje("Error al guardar: ${e.message}")
                 }
             }
         }
+    }
+
+    // 🔵 MÉTODO PARA VALIDAR Y EDITAR UN PRODUCTO EXISTENTE
+    private fun validarYEditarProducto() {
+        val nombre = binding.tietNombreProd.text.toString().trim()
+        val descripcion = binding.tietDescripcionProd.text.toString().trim()
+        val precioTexto = binding.tietPrecioProd.text.toString().trim()
+        val stockTexto = binding.tietStockProd.text.toString().trim()
+        val categoriaSeleccionada = binding.spnCategoria.selectedItem as? String
+
+        if (productoActual == null) {
+            mostrarMensaje("Selecciona un producto para editar")
+            return
+        }
+
+        if (nombre.isEmpty() || precioTexto.isEmpty() || stockTexto.isEmpty()) {
+            mostrarMensaje("Completa todos los campos obligatorios")
+            return
+        }
+
+        val precio = precioTexto.toDoubleOrNull() ?: 0.0
+        val stock = stockTexto.toIntOrNull() ?: 0
+        val idCategoria = categoriasMap[categoriaSeleccionada] ?: -1
+
+        if (idCategoria == -1) {
+            mostrarMensaje("Categoría no válida")
+            return
+        }
+
+        val productoEditado = productoActual!!.copy(
+            nombre = nombre,
+            descripcion = descripcion.ifEmpty { null },
+            precio = precio,
+            stock = stock,
+            idCat = idCategoria,
+            imagen = imagenSeleccionada ?: productoActual!!.imagen
+        )
+
+        editarProducto(productoEditado)
+    }
+
+    // 🔵 MÉTODO PARA ACTUALIZAR EN LA BD
+    private fun editarProducto(producto: Producto) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val filas = productoDAO.actualizarProducto(producto)
+                withContext(Dispatchers.Main) {
+                    if (filas > 0) {
+                        mostrarMensaje("✅ Producto '${producto.nombre}' actualizado correctamente")
+                        limpiarFormulario()
+                        productoActual = null
+                    } else {
+                        mostrarMensaje("❌ No se pudo actualizar el producto")
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    mostrarMensaje("Error al actualizar: ${e.message}")
+                }
+            }
+        }
+    }
+
+    // 🔵 MÉTODO PARA CARGAR DATOS DE UN PRODUCTO EN EL FORMULARIO (para edición)
+    fun cargarProductoParaEditar(producto: Producto) {
+        productoActual = producto
+
+        binding.tietNombreProd.setText(producto.nombre)
+        binding.tietDescripcionProd.setText(producto.descripcion ?: "")
+        binding.tietPrecioProd.setText(producto.precio.toString())
+        binding.tietStockProd.setText(producto.stock.toString())
+
+        // Seleccionar la categoría correcta en el spinner - CORREGIDO
+        val categoriaNombre = producto.nombreCategoria
+        if (!categoriaNombre.isNullOrEmpty()) {
+            val adapter = binding.spnCategoria.adapter
+            if (adapter is ArrayAdapter<*>) {
+                // Buscar la posición de forma segura sin usar getPosition()
+                val itemsCount = adapter.count
+                for (i in 0 until itemsCount) {
+                    val item = adapter.getItem(i) as? String
+                    if (item == categoriaNombre) {
+                        binding.spnCategoria.setSelection(i)
+                        break
+                    }
+                }
+            }
+        }
+
+        // Cargar imagen si existe
+        if (!producto.imagen.isNullOrEmpty()) {
+            try {
+                imagenSeleccionada = producto.imagen
+                binding.ivProducto.setImageURI(android.net.Uri.parse(producto.imagen))
+            } catch (e: Exception) {
+                binding.ivProducto.setImageResource(R.drawable.ic_box)
+            }
+        } else {
+            binding.ivProducto.setImageResource(R.drawable.ic_box)
+        }
+
+        // Cambiar texto del botón a "Actualizar Producto"
+        binding.btnGuardarProducto.text = "Actualizar Producto"
+
+        // Cambiar el listener del botón para que edite en lugar de guardar
+        binding.btnGuardarProducto.setOnClickListener {
+            validarYEditarProducto()
+        }
+    }
+
+    // 🔵 MÉTODO PARA CAMBIAR A MODO NUEVO PRODUCTO
+    private fun cambiarAModoNuevoProducto() {
+        productoActual = null
+        binding.btnGuardarProducto.text = "Guardar Producto"
+        binding.btnGuardarProducto.setOnClickListener {
+            validarYGuardarProducto()
+        }
+        limpiarFormulario()
     }
 
     private fun limpiarFormulario() {
@@ -231,11 +334,12 @@ class ProductosFragment : Fragment() {
         binding.tietDescripcionProd.text?.clear()
         binding.tietPrecioProd.text?.clear()
         binding.tietStockProd.text?.clear()
-
         binding.ivProducto.setImageResource(R.drawable.ic_box)
         imagenSeleccionada = null
-
         limpiarErrores()
+
+        // Volver al modo "nuevo producto"
+        cambiarAModoNuevoProducto()
     }
 
     private fun limpiarErrores() {
@@ -244,7 +348,10 @@ class ProductosFragment : Fragment() {
         binding.tietStockProd.error = null
     }
 
-    private fun mostrarErrorCampo(campo: com.google.android.material.textfield.TextInputEditText, mensaje: String) {
+    private fun mostrarErrorCampo(
+        campo: com.google.android.material.textfield.TextInputEditText,
+        mensaje: String
+    ) {
         campo.error = mensaje
         campo.requestFocus()
     }

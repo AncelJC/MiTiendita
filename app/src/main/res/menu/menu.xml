@@ -32,5 +32,9 @@
             android:id="@+id/itProductos"
             android:icon="@drawable/ic_computer"
             android:title="Productos" />
+        <item
+            android:id="@+id/itProducts"
+            android:title="Productos API"
+            android:icon="@drawable/ic_producto"/>
     </group>
 </menu>

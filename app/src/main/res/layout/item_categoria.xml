@@ -16,14 +16,12 @@
         android:padding="16dp"
         android:gravity="center_vertical">
 
-        <!-- Icono de categoría -->
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_category"
             android:layout_marginEnd="12dp" />
 
-        <!-- Nombre de la categoría -->
         <TextView
             android:id="@+id/tvNombreCategoria"
             android:layout_width="0dp"
@@ -33,7 +31,6 @@
             android:textAppearance="?attr/textAppearanceBodyLarge"
             android:textStyle="bold" />
 
-        <!-- Botones de acción -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -8,9 +8,8 @@ class DetalleProductoDAO(context: Context) {
 
     private val dbHelper = DBHelper(context)
 
-    /**
-     * Obtiene un producto individual por su ID.
-     */
+    // Obtiene un producto por su ID, incluyendo su categoría.
+
     fun obtenerProductoPorId(idProducto: Int): Producto? {
         val db = dbHelper.readableDatabase
         val cursor: Cursor = db.rawQuery(
@@ -37,6 +36,8 @@ class DetalleProductoDAO(context: Context) {
                 stock = cursor.getInt(cursor.getColumnIndexOrThrow("stock")),
                 idCat = cursor.getInt(cursor.getColumnIndexOrThrow("idCat")),
                 nombreCategoria = nombreCategoria ?: "",
+                activo = true,
+                unidadMedida = "unidad",
                 imagen = imagen
             )
         }
@@ -45,9 +46,8 @@ class DetalleProductoDAO(context: Context) {
         return producto
     }
 
-    /**
-     * Obtiene la lista de TODOS los productos, incluyendo el nombre de su categoría.
-     */
+    // Obtiene todos los productos con su categoría.
+
     fun obtenerTodosLosProductosConCategoria(): List<Producto> {
         val db = dbHelper.readableDatabase
         val lista = mutableListOf<Producto>()
@@ -76,7 +76,10 @@ class DetalleProductoDAO(context: Context) {
                     stock = cursor.getInt(cursor.getColumnIndexOrThrow("stock")),
                     idCat = cursor.getInt(cursor.getColumnIndexOrThrow("idCat")),
                     nombreCategoria = nombreCategoria ?: "",
+                    activo = true,
+                    unidadMedida = "unidad",
                     imagen = imagen
+
                 )
             )
         }
@@ -85,10 +88,8 @@ class DetalleProductoDAO(context: Context) {
         return lista
     }
 
-    /**
-     * Elimina un producto de la base de datos por su ID.
-     * @return El número de filas eliminadas.
-     */
+    // Elimina un producto por su ID.
+
     fun eliminarProducto(idProducto: Int): Int {
         val db = dbHelper.writableDatabase
         val filasAfectadas = db.delete(
@@ -100,10 +101,9 @@ class DetalleProductoDAO(context: Context) {
         return filasAfectadas
     }
 
-    /**
-     * Obtiene el conteo total de productos, stock bajo y sin stock para las estadísticas.
-     * @return Un mapa con las claves "total", "stockBajo", "sinStock".
-     */
+    // Actualiza un producto existente.
+
+
     fun obtenerEstadisticasStock(umbralStockBajo: Int = 10): Map<String, Int> {
         val db = dbHelper.readableDatabase
         val stats = mutableMapOf<String, Int>()

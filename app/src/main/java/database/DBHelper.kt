@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.example.mitiendita.entity.Usuario
 
-class DBHelper(context: Context) : SQLiteOpenHelper(context, "tiendita.db", null, 1) {
+class DBHelper(context: Context) : SQLiteOpenHelper(context, "tiendita.db", null, 1) { // ✅ Cambiado a versión 3
 
     override fun onCreate(db: SQLiteDatabase) {
         // Crear tabla usuarios
@@ -38,7 +38,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "tiendita.db", null
             """.trimIndent()
         )
 
-        // Crear tabla Productos
+        // Crear tabla Productos CON COLUMNA ACTIVO Y UNIDADMEDIDA
         db.execSQL(
             """
             CREATE TABLE productos (
@@ -49,6 +49,8 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "tiendita.db", null
                 stock INTEGER NOT NULL,
                 idCat INTEGER,
                 imagen TEXT,
+                unidadMedida TEXT DEFAULT 'unidad',
+                activo INTEGER DEFAULT 1,
                 FOREIGN KEY (idCat) REFERENCES categorias(idCat)
             )
             """.trimIndent()
@@ -86,21 +88,114 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "tiendita.db", null
             """.trimIndent()
         )
 
-        // Insertar categorías iniciales
-        insertarCategoriasIniciales(db)
+        // Insertar datos iniciales
+        insertarDatosIniciales(db)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS detalleCompra")
-        db.execSQL("DROP TABLE IF EXISTS compras")
-        db.execSQL("DROP TABLE IF EXISTS productos")
-        db.execSQL("DROP TABLE IF EXISTS categorias")
-        db.execSQL("DROP TABLE IF EXISTS usuarios")
-        onCreate(db)
+        when (oldVersion) {
+            1 -> {
+                // Agregar columna activo si la versión anterior era 1
+                db.execSQL("ALTER TABLE productos ADD COLUMN activo INTEGER DEFAULT 1")
+                // Agregar columna unidadMedida
+                db.execSQL("ALTER TABLE productos ADD COLUMN unidadMedida TEXT DEFAULT 'unidad'")
+            }
+            2 -> {
+                // Agregar columna unidadMedida si la versión anterior era 2
+                db.execSQL("ALTER TABLE productos ADD COLUMN unidadMedida TEXT DEFAULT 'unidad'")
+            }
+        }
     }
 
     // ============================
-    // USUARIOS
+    // DATOS INICIALES
+    // ============================
+
+    private fun insertarDatosIniciales(db: SQLiteDatabase) {
+        insertarCategoriasIniciales(db)
+        insertarProductosIniciales(db)
+        insertarUsuarioPrueba(db)
+    }
+
+    private fun insertarCategoriasIniciales(db: SQLiteDatabase) {
+        val categorias = listOf("Electrónica", "Ropa", "Alimentos", "Hogar", "Juguetes")
+
+        for (nombre in categorias) {
+            val values = ContentValues().apply {
+                put("nombre", nombre)
+            }
+
+            val cursor: Cursor = db.rawQuery("SELECT COUNT(*) FROM categorias WHERE nombre=?", arrayOf(nombre))
+            cursor.moveToFirst()
+            val count = cursor.getInt(0)
+            cursor.close()
+
+            if (count == 0) {
+                db.insert("categorias", null, values)
+            }
+        }
+    }
+
+    private fun insertarProductosIniciales(db: SQLiteDatabase) {
+        val productos = listOf(
+            arrayOf("Smartphone Samsung", "Teléfono inteligente de última generación", 899.99, 10, 1, null, "unidad"),
+            arrayOf("Laptop HP", "Laptop para trabajo y estudio", 1299.99, 5, 1, null, "unidad"),
+            arrayOf("Camiseta Básica", "Camiseta de algodón 100%", 19.99, 50, 2, null, "unidad"),
+            arrayOf("Jeans Clásicos", "Jeans de corte recto", 49.99, 30, 2, null, "unidad"),
+            arrayOf("Arroz Integral", "Arroz integral orgánico 1kg", 3.99, 100, 3, null, "kg"),
+            arrayOf("Aceite de Oliva", "Aceite extra virgen 500ml", 8.99, 40, 3, null, "litro"),
+            arrayOf("Juego de Sábanas", "Sábanas de algodón king size", 39.99, 20, 4, null, "juego"),
+            arrayOf("Lego Classic", "Set de construcción para niños", 29.99, 25, 5, null, "caja")
+        )
+
+        for (producto in productos) {
+            val values = ContentValues().apply {
+                put("nombre", producto[0] as String)
+                put("descripcion", producto[1] as String)
+                put("precio", producto[2] as Double)
+                put("stock", producto[3] as Int)
+                put("idCat", producto[4] as Int)
+                put("imagen", producto[5] as String?)
+                put("unidadMedida", producto[6] as String)  // Nueva columna
+                put("activo", 1)
+            }
+
+            val cursor: Cursor = db.rawQuery("SELECT COUNT(*) FROM productos WHERE nombre=?", arrayOf(producto[0] as String))
+            cursor.moveToFirst()
+            val count = cursor.getInt(0)
+            cursor.close()
+
+            if (count == 0) {
+                db.insert("productos", null, values)
+            }
+        }
+    }
+
+    private fun insertarUsuarioPrueba(db: SQLiteDatabase) {
+        val values = ContentValues().apply {
+            put("dni", "12345678")
+            put("nombres", "Usuario")
+            put("apellidoP", "Prueba")
+            put("apellidoM", "Test")
+            put("telefono", "999888777")
+            put("sexo", "Masculino")
+            put("correo", "test@test.com")
+            put("clave", "123456")
+            put("terminos", 1)
+        }
+
+        val cursor: Cursor = db.rawQuery("SELECT COUNT(*) FROM usuarios WHERE correo=?", arrayOf("test@test.com"))
+        cursor.moveToFirst()
+        val count = cursor.getInt(0)
+        cursor.close()
+
+        if (count == 0) {
+            db.insert("usuarios", null, values)
+        }
+    }
+
+    // ============================
+    // USUARIOS - MÉTODOS BÁSICOS
     // ============================
 
     fun registrarUsuario(
@@ -151,57 +246,38 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "tiendita.db", null
         return usuario
     }
 
+    // ============================
+    // PRODUCTOS - MÉTODOS BÁSICOS
+    // ============================
 
-
-    //Inserta categorías de prueba si la tabla está vacía.
-
-    private fun insertarCategoriasIniciales(db: SQLiteDatabase) {
-        val categorias = listOf("Electrónica", "Ropa", "Alimentos", "Hogar", "Juguetes")
-
-        for (nombre in categorias) {
-            val values = ContentValues().apply {
-                put("nombre", nombre)
-            }
-            // Insertar si no existe
-            val cursor: Cursor = db.rawQuery("SELECT COUNT(*) FROM categorias WHERE nombre=?", arrayOf(nombre))
-            cursor.moveToFirst()
-            val count = cursor.getInt(0)
-            cursor.close()
-
-            if (count == 0) {
-                db.insert("categorias", null, values)
-            }
+    fun insertarProducto(
+        nombre: String,
+        descripcion: String,
+        precio: Double,
+        stock: Int,
+        idCat: Int,
+        imagen: String? = null,
+        unidadMedida: String = "unidad"  // Nuevo parámetro
+    ): Long {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put("nombre", nombre)
+            put("descripcion", descripcion)
+            put("precio", precio)
+            put("stock", stock)
+            put("idCat", idCat)
+            put("imagen", imagen)
+            put("unidadMedida", unidadMedida)  // Nueva columna
+            put("activo", 1)
         }
+        val result = db.insert("productos", null, values)
+        db.close()
+        return result
     }
-
-
-    // PRODUCTOS
-
-//    fun insertarProducto(
-//        nombre: String,
-//        descripcion: String,
-//        precio: Double,
-//        stock: Int,
-//        idCat: Int,
-//        imagen: String? = null
-//    ): Long {
-//        val db = writableDatabase
-//        val values = ContentValues().apply {
-//            put("nombre", nombre)
-//            put("descripcion", descripcion)
-//            put("precio", precio)
-//            put("stock", stock)
-//            put("idCat", idCat)
-//            put("imagen", imagen)
-//        }
-//        val result = db.insert("productos", null, values)
-//        db.close()
-//        return result
-//    }
 
     fun obtenerProductos(): Cursor {
         val db = readableDatabase
-        return db.rawQuery("SELECT * FROM productos", null)
+        return db.rawQuery("SELECT * FROM productos WHERE activo = 1 ORDER BY nombre", null)
     }
 
     fun obtenerProductosConCategoria(): Cursor {
@@ -211,7 +287,20 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "tiendita.db", null
             SELECT p.*, c.nombre as nombreCategoria 
             FROM productos p 
             LEFT JOIN categorias c ON p.idCat = c.idCat 
+            WHERE p.activo = 1
             ORDER BY p.nombre
+            """.trimIndent(), null
+        )
+    }
+
+    fun obtenerTodosLosProductosAdmin(): Cursor {
+        val db = readableDatabase
+        return db.rawQuery(
+            """
+            SELECT p.*, c.nombre as nombreCategoria 
+            FROM productos p 
+            LEFT JOIN categorias c ON p.idCat = c.idCat 
+            ORDER BY p.activo DESC, p.nombre
             """.trimIndent(), null
         )
     }
@@ -223,7 +312,8 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "tiendita.db", null
         precio: Double,
         stock: Int,
         idCat: Int,
-        imagen: String? = null
+        imagen: String? = null,
+        unidadMedida: String = "unidad"  // Nuevo parámetro
     ): Int {
         val db = writableDatabase
         val values = ContentValues().apply {
@@ -232,6 +322,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "tiendita.db", null
             put("precio", precio)
             put("stock", stock)
             put("idCat", idCat)
+            put("unidadMedida", unidadMedida)  // Nueva columna
             if (imagen != null) {
                 put("imagen", imagen)
             }
@@ -239,6 +330,16 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "tiendita.db", null
         val result = db.update("productos", values, "idProd = ?", arrayOf(id.toString()))
         db.close()
         return result
+    }
+
+    fun cambiarEstadoProducto(idProd: Int, activo: Boolean): Boolean {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put("activo", if (activo) 1 else 0)
+        }
+        val result = db.update("productos", values, "idProd = ?", arrayOf(idProd.toString()))
+        db.close()
+        return result > 0
     }
 
     fun eliminarProducto(id: Int): Int {
@@ -249,7 +350,16 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "tiendita.db", null
     }
 
     // ============================
-    // COMPRAS Y DETALLE COMPRA
+    // CATEGORÍAS - MÉTODOS BÁSICOS
+    // ============================
+
+    fun obtenerCategorias(): Cursor {
+        val db = readableDatabase
+        return db.rawQuery("SELECT * FROM categorias ORDER BY nombre", null)
+    }
+
+    // ============================
+    // COMPRAS - MÉTODOS BÁSICOS (para uso de DAOs)
     // ============================
 
     fun registrarCompra(total: Double, fecha: String, idUsua: Int): Long {
@@ -290,8 +400,9 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "tiendita.db", null
         return result
     }
 
-
-    //Obtiene el conteo de registros en una tabla
+    // ============================
+    // MÉTODOS UTILITARIOS
+    // ============================
 
     fun obtenerConteoTabla(nombreTabla: String): Int {
         val db = readableDatabase
@@ -303,11 +414,66 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "tiendita.db", null
         return count
     }
 
-
-    //Verifica si la base de datos está vacía
-
     fun estaBaseDeDatosVacia(): Boolean {
         val tablas = listOf("usuarios", "categorias", "productos")
         return tablas.all { obtenerConteoTabla(it) == 0 }
+    }
+
+    // ============================
+    // MÉTODOS PARA OBTENER UNIDADES DE MEDIDA DISPONIBLES
+    // ============================
+
+    fun obtenerUnidadesDeMedida(): List<String> {
+        return listOf("unidad", "kg", "litro", "gramo", "metro", "caja", "juego", "paquete", "botella", "lata")
+    }
+
+    // ============================
+    // MÉTODOS PARA ACTUALIZAR STOCK
+    // ============================
+
+    fun actualizarStockProducto(idProd: Int, nuevoStock: Int): Boolean {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put("stock", nuevoStock)
+        }
+        val result = db.update("productos", values, "idProd = ?", arrayOf(idProd.toString()))
+        db.close()
+        return result > 0
+    }
+
+    fun obtenerStockProducto(idProd: Int): Int {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT stock FROM productos WHERE idProd = ?", arrayOf(idProd.toString()))
+        var stock = 0
+        if (cursor.moveToFirst()) {
+            stock = cursor.getInt(cursor.getColumnIndexOrThrow("stock"))
+        }
+        cursor.close()
+        db.close()
+        return stock
+    }
+
+    // ============================
+    // MÉTODOS PARA VALIDACIONES
+    // ============================
+
+    fun existeProducto(nombre: String): Boolean {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT COUNT(*) FROM productos WHERE nombre = ?", arrayOf(nombre))
+        cursor.moveToFirst()
+        val count = cursor.getInt(0)
+        cursor.close()
+        db.close()
+        return count > 0
+    }
+
+    fun existeCorreo(correo: String): Boolean {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT COUNT(*) FROM usuarios WHERE correo = ?", arrayOf(correo))
+        cursor.moveToFirst()
+        val count = cursor.getInt(0)
+        cursor.close()
+        db.close()
+        return count > 0
     }
 }

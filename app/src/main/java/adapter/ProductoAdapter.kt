@@ -45,8 +45,8 @@ class ProductoAdapter(
         val tvCategoria: TextView = itemView.findViewById(R.id.tvCategoria)
         val tvPrecio: TextView = itemView.findViewById(R.id.tvPrecio)
         val tvStock: TextView = itemView.findViewById(R.id.tvStock)
-        val btnEditar: MaterialButton = itemView.findViewById(R.id.btnEditar)
-        val btnEliminar: MaterialButton = itemView.findViewById(R.id.btnEliminar)
+        val btnEditar: MaterialButton = itemView.findViewById(R.id.btnEditarProducto)
+        val btnEliminar: MaterialButton = itemView.findViewById(R.id.btnEliminarProducto)
 
         init {
             itemView.setOnClickListener {

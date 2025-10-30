@@ -8,7 +8,6 @@
     android:background="@color/white"
     tools:context=".ui.HistorialComprasFragment">
 
-    <!-- App Bar con título y filtros -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,7 +22,6 @@
             app:titleTextColor="@color/black"
             app:menu="@menu/menu_historial" />
 
-        <!-- Barra de búsqueda y filtros -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,7 +35,6 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- Barra de búsqueda -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -55,14 +52,12 @@
                         android:imeOptions="actionSearch" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Filtros -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
-                    <!-- Filtro por fecha -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnFiltrarFecha"
                         android:layout_width="0dp"
@@ -73,7 +68,6 @@
                         style="@style/Widget.Material3.Button.OutlinedButton"
                         app:icon="@drawable/ic_calendar" />
 
-                    <!-- Ordenar -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnOrdenar"
                         android:layout_width="wrap_content"
@@ -90,7 +84,6 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Contenido principal -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -102,7 +95,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Resumen estadístico -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -116,7 +108,6 @@
                     android:orientation="horizontal"
                     android:padding="16dp">
 
-                    <!-- Total gastado -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -144,7 +135,6 @@
 
                     </LinearLayout>
 
-                    <!-- Número de compras -->
                     <View
                         android:layout_width="1dp"
                         android:layout_height="40dp"
@@ -181,7 +171,6 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Lista de compras -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -193,7 +182,6 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <!-- Header de la lista -->
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -205,7 +193,6 @@
                         android:background="?attr/colorPrimaryContainer"
                         android:textColor="?attr/colorOnPrimaryContainer" />
 
-                    <!-- Mensaje cuando no hay compras -->
                     <TextView
                         android:id="@+id/tvMensajeVacio"
                         android:layout_width="match_parent"
@@ -216,7 +203,6 @@
                         android:padding="40dp"
                         android:visibility="gone" />
 
-                    <!-- RecyclerView para el historial -->
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rvHistorial"
                         android:layout_width="match_parent"
@@ -232,7 +218,6 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Botón flotante para nueva compra -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabNuevaCompra"
         android:layout_width="wrap_content"
