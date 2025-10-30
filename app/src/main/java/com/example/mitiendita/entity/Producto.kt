@@ -1,13 +1,16 @@
 package com.example.mitiendita.entity
 
+import java.io.Serializable
+
 data class Producto(
-    val idProd: Int = 0,
-    val nombre: String,
-    val descripcion: String? = null, // Debe ser nullable
-    val precio: Double,
-    val stock: Int,
-    val idCat: Int,
-    val codigo: String = "",
-    val nombreCategoria: String = "", // Debe tener valor por defecto
-    val imagen: String? = null // Debe ser nullable
-)
+    val idProd: Int,
+    var nombre: String,
+    var descripcion: String?,
+    var precio: Double,
+    var stock: Int,
+    var imagen: String?,
+    var idCat: Int,
+    var activo: Boolean,
+    var unidadMedida: String = "unidad",
+    var nombreCategoria: String? = null
+) : Serializable

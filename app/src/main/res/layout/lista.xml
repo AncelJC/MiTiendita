@@ -14,7 +14,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Título -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -40,7 +39,6 @@
             android:divider="@color/darker_gray"
             android:dividerHeight="1dp"/>
 
-        <!-- Botón de historial -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnHistorial"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -53,7 +51,6 @@
             app:cornerRadius="12dp"
             android:layout_marginTop="12dp"/>
 
-        <!-- Agregar producto -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -82,7 +79,6 @@
                     android:inputType="text"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Botón flotante -->
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/ivAgregar"
                 android:layout_width="wrap_content"
@@ -94,7 +90,6 @@
                 app:tint="@android:color/white"/>
         </LinearLayout>
 
-        <!-- Botón normal de agregar producto -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAgregar"
             style="@style/BotonAgregarProducto"

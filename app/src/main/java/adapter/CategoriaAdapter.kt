@@ -45,7 +45,6 @@ class CategoriaAdapter(
 
         holder.tvNombre.text = categoria.nombre
 
-        // 🟢 Configurar listeners para los botones de acción
         holder.btnEditar.setOnClickListener {
             actionListener?.onEditClick(categoria)
         }
@@ -57,7 +56,6 @@ class CategoriaAdapter(
 
     override fun getItemCount(): Int = categoriasList.size
 
-    // Función de utilidad para actualizar la lista
     fun updateData(newCategories: List<Categoria>) {
         categoriasList.clear()
         categoriasList.addAll(newCategories)

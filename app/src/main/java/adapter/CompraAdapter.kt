@@ -1,6 +1,0 @@
-package adapter
-
-class CompraAdapter {
-
-
-}

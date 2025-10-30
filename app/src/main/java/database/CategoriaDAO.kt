@@ -76,10 +76,6 @@ class CategoriaDAO(context: Context) {
 
     // Dentro de CategoriaDAO.kt
 
-    /**
-     * Obtiene solo los nombres de las categorías.
-     * @return Una lista de Strings (nombres de categorías).
-     */
     fun obtenerNombresCategorias(): List<String> {
         val db = dbHelper.readableDatabase
         val lista = mutableListOf<String>()

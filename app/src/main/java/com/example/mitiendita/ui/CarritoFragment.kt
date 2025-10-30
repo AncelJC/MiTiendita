@@ -1,82 +1,164 @@
 package com.example.mitiendita.ui
 
+import adapter.CarritoAdapter
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.mitiendita.R
-import com.example.mitiendita.databinding.FragmentCarritoBinding
+import com.example.mitiendita.dao.CarritoDAO
+import com.example.mitiendita.entity.CarritoItem
+import com.example.mitiendita.viewmodel.CarritoViewModel
+import com.google.android.material.snackbar.Snackbar
 
 class CarritoFragment : Fragment() {
 
-    // 1. Usando View Binding para acceder a las vistas de forma segura
-    private var _binding: FragmentCarritoBinding? = null
-    // Esta propiedad solo es válida entre onCreateView y onDestroyView.
-    private  val binding get() = _binding!!
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var tvTotal: TextView
+    private lateinit var tvCarritoVacio: TextView
+    private lateinit var btnFinalizarCompra: Button
+    private lateinit var btnSeguirComprando: Button
 
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        arguments?.let {
-//        }
-//    }
+    private lateinit var carritoAdapter: CarritoAdapter
+    private lateinit var carritoDAO: CarritoDAO
+
+    private val carritoViewModel: CarritoViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflamos el layout usando View Binding
-            _binding = FragmentCarritoBinding.inflate(inflater, container, false)
-            return binding.root
-        }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        // Aquí iría la lógica para configurar el RecyclerView,
-        // cargar los datos del carrito (por ejemplo, desde una base de datos o ViewModel)
-        // y configurar el botón de pago.
-
+        val view = inflater.inflate(R.layout.fragment_carrito, container, false)
+        initViews(view)
         setupRecyclerView()
-        loadCartData()
-        setupCheckoutButton()
+        setupListeners()
+        setupObservers()
+        return view
+    }
+
+    private fun initViews(view: View) {
+        recyclerView = view.findViewById(R.id.recyclerViewCarrito)
+        tvTotal = view.findViewById(R.id.tvTotalCarrito)
+        tvCarritoVacio = view.findViewById(R.id.tvCarritoVacio)
+        btnFinalizarCompra = view.findViewById(R.id.btnFinalizarCompra)
+        btnSeguirComprando = view.findViewById(R.id.btnSeguirComprando)
+
+        carritoDAO = CarritoDAO(requireContext())
     }
 
     private fun setupRecyclerView() {
-        // TODO: Inicializar y configurar el Adapter y el LayoutManager para el RecyclerView.
-        // Ejemplo:
-        // val adapter = CartItemAdapter(listaDeArticulos)
-        // binding.recyclerViewCartItems.adapter = adapter
-    }
+        carritoAdapter = CarritoAdapter(
+            mutableListOf(),
+            onCantidadChanged = { position, nuevaCantidad ->
+                val item = carritoAdapter.getCarritoItems()[position]
+                carritoViewModel.actualizarCantidad(item.idProducto, nuevaCantidad)
+            },
+            onItemRemoved = { position ->
+                val item = carritoAdapter.getCarritoItems()[position]
+                carritoViewModel.eliminarDelCarrito(item.idProducto)
+                Snackbar.make(requireView(), "${item.nombre} eliminado", Snackbar.LENGTH_SHORT).show()
+            }
+        )
 
-    private fun loadCartData() {
-        // TODO: Lógica para obtener los artículos del carrito y actualizar la UI.
-        // Esto generalmente se hace a través de un ViewModel para mantener la arquitectura limpia.
-
-        // Simulación de actualización de total:
-        val simulatedTotal = 150.75
-        binding.tvCartTotal.text = "Total: $${"%.2f".format(simulatedTotal)}"
-    }
-
-    private fun setupCheckoutButton() {
-        binding.btnCheckout.setOnClickListener {
-            // TODO: Lógica para ir a la pantalla de pago (Checkout)
-            // Ejemplo:
-            // parentFragmentManager.beginTransaction()
-            //     .replace(R.id.fragment_container, CheckoutFragment())
-            //     .addToBackStack(null)
-            //     .commit()
-
-            // Un mensaje simple de prueba
-            println("Procediendo al pago...")
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = carritoAdapter
         }
     }
 
-    // 3. Limpieza de View Binding
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun setupObservers() {
+        carritoViewModel.carritoItems.observe(viewLifecycleOwner, Observer { items ->
+            carritoAdapter.actualizarLista(items.toMutableList())
+            actualizarVistaCarrito()
+        })
+
+        carritoViewModel.totalCarrito.observe(viewLifecycleOwner, Observer { total ->
+            tvTotal.text = "Total: S/ ${String.format("%.2f", total)}"
+        })
     }
 
+    private fun setupListeners() {
+        btnFinalizarCompra.setOnClickListener {
+            finalizarCompra()
+        }
 
+        btnSeguirComprando.setOnClickListener {
+            requireActivity().supportFragmentManager.popBackStack()
+        }
+    }
+
+    private fun finalizarCompra() {
+        val items = carritoAdapter.getCarritoItems()
+
+        if (items.isEmpty()) {
+            mostrarMensaje("El carrito está vacío")
+            return
+        }
+
+        // ✅ Validar stock usando CarritoDAO
+        if (!carritoDAO.validarStockDisponible(items)) {
+            mostrarMensaje("Algunos productos no tienen stock suficiente")
+            return
+        }
+
+        mostrarDialogoConfirmacionCompra()
+    }
+
+    private fun mostrarDialogoConfirmacionCompra() {
+        val total = carritoViewModel.totalCarrito.value ?: 0.0
+
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle("Confirmar Compra")
+            .setMessage("¿Estás seguro de que quieres finalizar la compra?\n\nTotal: S/ ${String.format("%.2f", total)}")
+            .setPositiveButton("Confirmar") { _, _ ->
+                procesarVenta()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun procesarVenta() {
+        val items = carritoAdapter.getCarritoItems()
+        val idUsuario = 1 // Por ahora hardcodeado, luego puedes obtenerlo del usuario logueado
+
+        // ✅ USAR CarritoDAO para procesar la venta y actualizar stock
+        val (exito, idCompra) = carritoDAO.procesarVenta(items, idUsuario)
+
+        if (exito) {
+            mostrarComprobanteVenta(idCompra, carritoDAO.calcularTotalCarrito(items))
+            carritoViewModel.limpiarCarrito() // Limpiar el carrito después de la compra exitosa
+        } else {
+            mostrarMensaje("Error al procesar la compra")
+        }
+    }
+
+    private fun actualizarVistaCarrito() {
+        val tieneItems = carritoAdapter.itemCount > 0
+
+        tvCarritoVacio.visibility = if (tieneItems) View.GONE else View.VISIBLE
+        recyclerView.visibility = if (tieneItems) View.VISIBLE else View.GONE
+        btnFinalizarCompra.visibility = if (tieneItems) View.VISIBLE else View.GONE
+    }
+
+    private fun mostrarComprobanteVenta(idCompra: Int, total: Double) {
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle("¡Compra Exitosa!")
+            .setMessage("N° de Compra: #$idCompra\nTotal: S/ ${String.format("%.2f", total)}\n\n¡Gracias por tu compra en MiTiendita!")
+            .setPositiveButton("Aceptar") { _, _ ->
+                requireActivity().supportFragmentManager.popBackStack()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun mostrarMensaje(mensaje: String) {
+        Snackbar.make(requireView(), mensaje, Snackbar.LENGTH_SHORT).show()
+    }
 }

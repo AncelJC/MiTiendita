@@ -20,14 +20,16 @@
     <color name="red_600">#D32F2F</color>
     <color name="blue_600">#1976D2</color>
     <color name="naranja">#FFA500</color>
-
-    <!-- Colores principales -->
+    <color name="red_500">#FFF44336</color>
+    <color name="orange_500">#FFFF9800</color>
+    <color name="gray_light">#FFF5F5F5</color>
+    <color name="colorPrimary">#2196F3</color>
+    <color name="colorPrimaryDark">#1976D2</color>
+    <color name="colorAccent">#FF4081</color>
     <color name="morado1">#6A1B9A</color>
     <color name="morado3">#BA68C8</color>
     <color name="amarillo2">#FFEB3B</color>
     <color name="azul2">#1976D2</color>
-
-    <!-- Colores secundarios -->
     <color name="naranja1">#FF7043</color>
     <color name="gris1">#757575</color>
     <color name="hint_color">#9E9E9E</color>
@@ -38,7 +40,7 @@
     <color name="naranja3">#FF5741</color>
     <color name="naranja4">#FF8103</color>
     <color name="naranja5">#FF9D4D</color>
-    <color name="tonal_button_color">#6750A4</color> <!-- Violeta Material 3 -->
+    <color name="tonal_button_color">#6750A4</color>
     <color name="plomo">#B3B3B3</color>
     <color name="rosa">#FF908A</color>
     <color name="turquesa">#589FFF</color>

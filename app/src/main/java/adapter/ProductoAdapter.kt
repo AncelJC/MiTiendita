@@ -38,21 +38,19 @@ class ProductoAdapter(
     }
 
     inner class ProductoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // Las referencias a las vistas se mantienen
         val ivProducto: ImageView = itemView.findViewById(R.id.ivProducto)
         val tvNombre: TextView = itemView.findViewById(R.id.tvNombre)
         val tvDescripcion: TextView = itemView.findViewById(R.id.tvDescripcion)
         val tvCategoria: TextView = itemView.findViewById(R.id.tvCategoria)
         val tvPrecio: TextView = itemView.findViewById(R.id.tvPrecio)
         val tvStock: TextView = itemView.findViewById(R.id.tvStock)
-        val btnEditar: MaterialButton = itemView.findViewById(R.id.btnEditar)
-        val btnEliminar: MaterialButton = itemView.findViewById(R.id.btnEliminar)
+        val btnEditar: MaterialButton = itemView.findViewById(R.id.btnEditarProducto)
+        val btnEliminar: MaterialButton = itemView.findViewById(R.id.btnEliminarProducto)
 
         init {
             itemView.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    // Usa getItem() de ListAdapter
                     actionListener.onItemClick(getItem(position))
                 }
             }
@@ -69,30 +67,24 @@ class ProductoAdapter(
     }
 
     override fun onBindViewHolder(holder: ProductoViewHolder, position: Int) {
-        // Usa getItem() de ListAdapter
         val producto = getItem(position)
         val context = holder.itemView.context
 
-        // 1. Datos de texto
         holder.tvNombre.text = producto.nombre
         holder.tvDescripcion.text = producto.descripcion ?: "Sin descripción"
         holder.tvCategoria.text = producto.nombreCategoria
 
-        // Uso el formato de moneda mejorado
         holder.tvPrecio.text = formatoMoneda.format(producto.precio)
         holder.tvStock.text = "Stock: ${producto.stock}"
 
-        // 2. Lógica de Stock (Cambio de color)
         val stockBajo = 10
         val color: Int = when {
             producto.stock == 0 -> ContextCompat.getColor(context, R.color.red_600)
             producto.stock <= stockBajo -> ContextCompat.getColor(context, R.color.orange_600)
             else -> ContextCompat.getColor(context, R.color.green_500)
         }
-        // Cambiamos el color del texto
         holder.tvStock.setTextColor(color)
 
-        // 3. Carga de Imagen
         val uriString = producto.imagen
         if (!uriString.isNullOrEmpty()) {
             try {
@@ -108,10 +100,8 @@ class ProductoAdapter(
             holder.ivProducto.setImageResource(R.drawable.ic_box)
         }
 
-        // 4. Listeners para botones de acción
         holder.btnEditar.setOnClickListener { actionListener.onEditClick(producto) }
         holder.btnEliminar.setOnClickListener { actionListener.onDeleteClick(producto) }
     }
 
-    // 5. Los métodos getItemCount() y updateData() ya no son necesarios
 }
