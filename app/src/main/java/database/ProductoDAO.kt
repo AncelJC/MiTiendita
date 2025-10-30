@@ -12,7 +12,7 @@ class ProductoDAO(context: Context) {
 
 
     fun actualizarStockProducto(db: SQLiteDatabase, idProd: Int, nuevoStock: Int): Boolean {
-        val values = ContentValues().apply {
+        val values = ContentValues().apply {git
             put("stock", nuevoStock)
         }
 
