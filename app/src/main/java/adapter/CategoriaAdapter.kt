@@ -13,7 +13,6 @@ class CategoriaAdapter(
     private val categoriasList: MutableList<Categoria>
 ) : RecyclerView.Adapter<CategoriaAdapter.CategoriaViewHolder>() {
 
-    // Interfaces para manejar eventos de clic fuera del Adapter
     interface OnItemActionListener {
         fun onEditClick(categoria: Categoria)
         fun onDeleteClick(categoria: Categoria)

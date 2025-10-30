@@ -2,16 +2,53 @@ package com.example.mitiendita.dao
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import com.example.mitiendita.database.DBHelper
 import com.example.mitiendita.entity.Producto
-import com.example.mitiendita.entity.Productos
 
 class ProductoDAO(context: Context) {
 
     private val dbHelper = DBHelper(context)
 
 
+    fun actualizarStockProducto(db: SQLiteDatabase, idProd: Int, nuevoStock: Int): Boolean {
+        val values = ContentValues().apply {
+            put("stock", nuevoStock)
+        }
 
+        val filasAfectadas = db.update(
+            "productos",
+            values,
+            "idProd = ?",
+            arrayOf(idProd.toString())
+        )
+        return filasAfectadas > 0
+    }
+
+
+    fun obtenerStockProducto(db: SQLiteDatabase, idProd: Int): Int {
+        // Usa la conexión 'db' que le pasamos
+        val cursor = db.rawQuery("SELECT stock FROM productos WHERE idProd = ?", arrayOf(idProd.toString()))
+        var stock = 0
+        if (cursor.moveToFirst()) {
+            stock = cursor.getInt(cursor.getColumnIndexOrThrow("stock"))
+        }
+        cursor.close()
+        // ¡IMPORTANTE! No cerramos 'db' aquí.
+        return stock
+    }
+
+    fun obtenerStockProductoIndependiente(idProd: Int): Int {
+        val db = dbHelper.readableDatabase
+        val cursor = db.rawQuery("SELECT stock FROM productos WHERE idProd = ?", arrayOf(idProd.toString()))
+        var stock = 0
+        if (cursor.moveToFirst()) {
+            stock = cursor.getInt(cursor.getColumnIndexOrThrow("stock"))
+        }
+        cursor.close()
+        db.close() // Cierra aquí
+        return stock
+    }
 
 
     fun insertarProducto(producto: Producto): Long {
@@ -23,7 +60,7 @@ class ProductoDAO(context: Context) {
             put("stock", producto.stock)
             put("idCat", producto.idCat)
             put("imagen", producto.imagen)
-            put("unidadMedida", producto.unidadMedida)  // Nueva columna
+            put("unidadMedida", producto.unidadMedida)
             put("activo", if (producto.activo) 1 else 0)
         }
         val resultado = db.insert("productos", null, values)
@@ -40,7 +77,7 @@ class ProductoDAO(context: Context) {
             put("stock", producto.stock)
             put("idCat", producto.idCat)
             put("imagen", producto.imagen)
-            put("unidadMedida", producto.unidadMedida)  // Nueva columna
+            put("unidadMedida", producto.unidadMedida)
             put("activo", if (producto.activo) 1 else 0)
         }
 
@@ -54,17 +91,13 @@ class ProductoDAO(context: Context) {
         return filasAfectadas
     }
 
-
-
     fun obtenerProductosActivos(): List<Producto> {
         val db = dbHelper.readableDatabase
         val listaProductos = mutableListOf<Producto>()
-
-        // CORREGIDO: cambiar "categoria" por "categorias"
         val query = """
             SELECT p.*, c.nombre as nombreCategoria 
             FROM productos p 
-            LEFT JOIN categorias c ON p.idCat = c.idCat  -- ← AQUÍ EL CAMBIO
+            LEFT JOIN categorias c ON p.idCat = c.idCat
             WHERE p.activo = 1
             ORDER BY p.nombre
         """.trimIndent()
@@ -95,12 +128,10 @@ class ProductoDAO(context: Context) {
     fun obtenerTodosLosProductosAdmi(): List<Producto> {
         val db = dbHelper.readableDatabase
         val listaProductos = mutableListOf<Producto>()
-
-        // CORREGIDO: cambiar "categoria" por "categorias"
         val query = """
             SELECT p.*, c.nombre as nombreCategoria 
             FROM productos p 
-            LEFT JOIN categorias c ON p.idCat = c.idCat  -- ← AQUÍ EL CAMBIO
+            LEFT JOIN categorias c ON p.idCat = c.idCat
             ORDER BY p.activo DESC, p.nombre
         """.trimIndent()
 
@@ -127,15 +158,6 @@ class ProductoDAO(context: Context) {
         return listaProductos
     }
 
-
-
-    // Actualiza los métodos que obtienen productos para incluir unidadMedida
-
-
-
-
-
-
     fun cambiarEstadoProduct(idProd: Int, nuevoEstado: Boolean): Boolean {
         val db = dbHelper.writableDatabase
         val values = ContentValues().apply {
@@ -146,9 +168,6 @@ class ProductoDAO(context: Context) {
         return result > 0
     }
 
-    // ========================
-    // ELIMINAR PRODUCTO
-    // ========================
     fun eliminarProduct(idProd: Int): Int {
         val db = dbHelper.writableDatabase
         val result = db.delete("productos", "idProd = ?", arrayOf(idProd.toString()))
@@ -156,9 +175,6 @@ class ProductoDAO(context: Context) {
         return result
     }
 
-    // ========================
-    // OBTENER PRODUCTO POR ID
-    // ========================
     fun obtenerProductoPorId(idProd: Int): Producto? {
         val db = dbHelper.readableDatabase
         val cursor = db.rawQuery(
@@ -189,34 +205,4 @@ class ProductoDAO(context: Context) {
         db.close()
         return producto
     }
-
-    fun actualizarStockProducto(idProd: Int, nuevoStock: Int): Boolean {
-        val db = dbHelper.writableDatabase
-        val values = ContentValues().apply {
-            put("stock", nuevoStock)
-        }
-
-        val filasAfectadas = db.update(
-            "productos",
-            values,
-            "idProd = ?",
-            arrayOf(idProd.toString())
-        )
-        db.close()
-        return filasAfectadas > 0
-    }
-
-    fun obtenerStockProducto(idProd: Int): Int {
-        val db = dbHelper.readableDatabase
-        val cursor = db.rawQuery("SELECT stock FROM productos WHERE idProd = ?", arrayOf(idProd.toString()))
-        var stock = 0
-        if (cursor.moveToFirst()) {
-            stock = cursor.getInt(cursor.getColumnIndexOrThrow("stock"))
-        }
-        cursor.close()
-        db.close()
-        return stock
-    }
-
-
 }

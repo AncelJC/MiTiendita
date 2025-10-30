@@ -8,7 +8,6 @@ class DetalleProductoDAO(context: Context) {
 
     private val dbHelper = DBHelper(context)
 
-    // Obtiene un producto por su ID, incluyendo su categoría.
 
     fun obtenerProductoPorId(idProducto: Int): Producto? {
         val db = dbHelper.readableDatabase

@@ -29,7 +29,6 @@ class Inicio : AppCompatActivity() {
     private lateinit var nvMenu: NavigationView
     private lateinit var ivMenu: ImageView
 
-    // Declarar el ViewModel a nivel de actividad para compartirlo entre fragments
     val carritoViewModel: CarritoViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,9 +83,6 @@ class Inicio : AppCompatActivity() {
         solicitarPermisoNotificaciones()
     }
 
-    /**
-     * Reemplaza un fragment en el contenedor principal.
-     */
     private fun replaceFragment(fragment: Fragment, tag: String) {
         val currentFragment = supportFragmentManager.findFragmentByTag(tag)
         if (currentFragment != null && currentFragment.isVisible) return
@@ -97,9 +93,6 @@ class Inicio : AppCompatActivity() {
             .commit()
     }
 
-    /**
-     * Configura el comportamiento del botón "Atrás"
-     */
     private fun setupBackPressHandler() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -126,9 +119,7 @@ class Inicio : AppCompatActivity() {
         })
     }
 
-    /**
-     * Configura el observer para el carrito y actualiza el badge
-     */
+
     private fun setupCarritoObserver() {
         carritoViewModel.carritoItems.observe(this) { items ->
             val totalItems = items.sumOf { it.cantidad }
@@ -136,25 +127,17 @@ class Inicio : AppCompatActivity() {
         }
     }
 
-    /**
-     * Actualiza el badge del carrito en la interfaz
-     */
     private fun actualizarBadgeCarrito(totalItems: Int) {
-        // Aquí puedes implementar la lógica para mostrar un badge
-        // Por ejemplo, en el ítem del menú del carrito
         val carritoMenuItem = nvMenu.menu.findItem(R.id.itCarrito)
 
         if (totalItems > 0) {
-            // Mostrar badge con la cantidad
             carritoMenuItem.title = "Carrito ($totalItems)"
         } else {
             carritoMenuItem.title = "Carrito"
         }
     }
 
-    /**
-     * Muestra un cuadro de diálogo de confirmación al salir.
-     */
+
     private fun showExitConfirmation(callback: OnBackPressedCallback) {
         android.app.AlertDialog.Builder(this)
             .setTitle("Salir")
@@ -167,9 +150,6 @@ class Inicio : AppCompatActivity() {
             .show()
     }
 
-    /**
-     * Solicita permiso de notificaciones (Android 13+)
-     */
     private fun solicitarPermisoNotificaciones() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
@@ -185,14 +165,7 @@ class Inicio : AppCompatActivity() {
         }
     }
 
-    /**
-     * Programa un recordatorio simple usando WorkManager
-     */
 
-
-    /**
-     * Maneja el resultado de los permisos solicitados
-     */
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,

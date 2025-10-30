@@ -30,8 +30,6 @@ class ProductosFragment : Fragment() {
 
     private var imagenSeleccionada: String? = null
     private val categoriasMap = mutableMapOf<String, Int>()
-
-    // Producto actual (para edición)
     private var productoActual: Producto? = null
 
     private val seleccionarImagen = registerForActivityResult(

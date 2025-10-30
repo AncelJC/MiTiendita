@@ -25,7 +25,6 @@ class CategoriaFragment : Fragment() {
 
     private lateinit var categoriaDAO: CategoriaDAO
 
-    // 🔴 CAMBIO: Usamos el nuevo Adapter y la lista de objetos Categoria
     private lateinit var categoriaAdapter: CategoriaAdapter
     private val categoriasList = mutableListOf<Categoria>()
 
@@ -43,12 +42,10 @@ class CategoriaFragment : Fragment() {
 
         categoriaDAO = CategoriaDAO(requireContext())
 
-        // 1. Inicializar RecyclerView y Adapter
         inicializarRecyclerView()
 
         binding.btnGuardarCategoria.setOnClickListener { guardarCategoria() }
 
-        // 2. Cargar categorías al iniciar el fragment
         cargarYMostrarCategorias()
     }
 
@@ -59,7 +56,6 @@ class CategoriaFragment : Fragment() {
             adapter = categoriaAdapter
         }
 
-        // Configurar los listeners para Editar/Eliminar
         categoriaAdapter.setOnItemActionListener(object : CategoriaAdapter.OnItemActionListener {
             override fun onEditClick(categoria: Categoria) {
                 // Lógica para abrir diálogo de edición
@@ -113,7 +109,6 @@ class CategoriaFragment : Fragment() {
 
             val lista = withContext(Dispatchers.IO) {
                 try {
-                    // 🔑 Llamada al DAO que devuelve List<Categoria>
                     categoriaDAO.obtenerTodasLasCategorias()
                 } catch (e: Exception) {
                     Log.e("CategoriaFragment", "Error al cargar categorías", e)

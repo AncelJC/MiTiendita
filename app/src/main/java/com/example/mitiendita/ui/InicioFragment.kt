@@ -25,8 +25,6 @@ class InicioFragment : Fragment() {
     private lateinit var productoAdapter: ProductoClienteAdapter
     private lateinit var productoDAO: ProductoDAO
     private var listaProductos = mutableListOf<Producto>()
-
-    // Usar ViewModel compartido con la actividad
     private val carritoViewModel: CarritoViewModel by activityViewModels()
 
     override fun onCreateView(

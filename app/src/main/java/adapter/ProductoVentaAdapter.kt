@@ -11,7 +11,7 @@ import com.bumptech.glide.Glide
 import com.example.mitiendita.R
 import com.example.mitiendita.entity.Producto
 
-class ProductoVentaAdapter(  // ✅ Nuevo adaptador para ventas
+class ProductoVentaAdapter(
     private val items: List<Producto>,
     private val onAgregarCarrito: (Producto) -> Unit
 ) : RecyclerView.Adapter<ProductoVentaAdapter.ProductoViewHolder>() {
@@ -53,7 +53,6 @@ class ProductoVentaAdapter(  // ✅ Nuevo adaptador para ventas
             }
         }
 
-        // Deshabilitar botón si no hay stock
         holder.btnAgregarCarrito.isEnabled = producto.stock > 0
         holder.btnAgregarCarrito.text = if (producto.stock > 0) "Agregar al Carrito" else "Sin Stock"
     }

@@ -7,7 +7,7 @@ data class CarritoItem(
     val nombre: String,
     val precio: Double,
     var cantidad: Int,
-    var unidadMedida: String,  // Ya está incluida
+    var unidadMedida: String,
     val imagen: String?,
     val stock: Int
 ) {

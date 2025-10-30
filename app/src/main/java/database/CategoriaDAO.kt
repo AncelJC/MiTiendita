@@ -4,7 +4,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import com.example.mitiendita.entity.Categoria
-import com.example.mitiendita.database.DBHelper
 
 class CategoriaDAO(context: Context) {
 
@@ -26,7 +25,6 @@ class CategoriaDAO(context: Context) {
     }
 
 
-    // Obtiene una lista de los IDs y nombres de todas las categorías.
 
     fun obtenerCategoriasConId(): List<Pair<Int, String>> {
         val categorias = mutableListOf<Pair<Int, String>>()
@@ -45,10 +43,6 @@ class CategoriaDAO(context: Context) {
         return categorias
     }
 
-// (Asegúrate de que esta clase tenga las funciones insertarCategoria, etc.)
-
-
-     //Obtiene todas las categorías (ID y nombre).
 
     fun obtenerTodasLasCategorias(): List<Categoria> {
         val db = dbHelper.readableDatabase
@@ -58,7 +52,6 @@ class CategoriaDAO(context: Context) {
             "SELECT idCat, nombre FROM categorias ORDER BY nombre ASC",
             null
         )
-        // Recorrer el cursor para obtener los datos
         while (cursor.moveToNext()) {
             val id = cursor.getInt(cursor.getColumnIndexOrThrow("idCat"))
             val nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre"))
@@ -71,10 +64,6 @@ class CategoriaDAO(context: Context) {
         return lista
     }
 
-
-    //Obtiene una lista de solo los nombres de todas las categorías.
-
-    // Dentro de CategoriaDAO.kt
 
     fun obtenerNombresCategorias(): List<String> {
         val db = dbHelper.readableDatabase
@@ -96,7 +85,6 @@ class CategoriaDAO(context: Context) {
     }
 
 
-     //Obtiene el ID de una categoría a partir de su nombre.
 
     fun obtenerIdCategoriaPorNombre(nombreCat: String): Int {
         val db = dbHelper.readableDatabase
@@ -114,7 +102,6 @@ class CategoriaDAO(context: Context) {
     }
 
 
-     //Verifica si una categoría ya existe
 
     fun existeCategoria(nombre: String): Boolean {
         val db = dbHelper.readableDatabase
@@ -129,10 +116,6 @@ class CategoriaDAO(context: Context) {
         return count > 0
     }
 
-
-
-
-     //Elimina una categoría por ID
 
     fun eliminarCategoria(id: Int): Int {
         val db = dbHelper.writableDatabase

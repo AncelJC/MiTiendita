@@ -42,7 +42,6 @@ class Acceso : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.acceso)
 
-        // Inicializar BD
         dbHelper = DBHelper(this)
 
         // Enlazar vistas
@@ -58,9 +57,6 @@ class Acceso : AppCompatActivity() {
         ivllamada = findViewById(R.id.ivllamada)
         ivInternet = findViewById(R.id.ivInternet)
 
-        // ----------------------------------------------------
-        // ACCIÓN CORREGIDA: Llama a la función validarCampos()
-        // ----------------------------------------------------
         btnIngresar.setOnClickListener {
             validarCampos()
         }
@@ -111,9 +107,7 @@ class Acceso : AppCompatActivity() {
         Log.d("AccesoActivity", "onCreate: Pantalla de Acceso cargada.")
     }
 
-    // ----------------------------------------------------
-    // FUNCIÓN DE VALIDACIÓN Y LOGIN (Lógica centralizada)
-    // ----------------------------------------------------
+
     fun validarCampos() {
         val correo = tietCorreo.text.toString().trim()
         val clave = tietPassword.text.toString().trim()
@@ -134,15 +128,13 @@ class Acceso : AppCompatActivity() {
             liPassword.error = null
         }
 
-        if (error) return // Detener si hay errores de campos vacíos
+        if (error) return
 
-        // Validar contra la base de datos
         val usuario: Usuario? = dbHelper.validarUsuario(correo, clave)
 
         if (usuario != null) {
             Toast.makeText(this, "✅ Bienvenido ${usuario.nombres}", Toast.LENGTH_SHORT).show()
 
-            // 💡 CAMBIO CRÍTICO AQUÍ: Navegación a Activity_Inicio
             startActivity(Intent(this, Inicio::class.java))
             finish()
         } else {

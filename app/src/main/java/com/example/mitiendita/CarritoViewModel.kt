@@ -20,9 +20,7 @@ class CarritoViewModel : ViewModel() {
 
         if (existingItem != null) {
             if (existingItem.incrementarCantidad()) {
-                // Item ya existe, cantidad incrementada
             } else {
-                // No se pudo incrementar por stock
                 return
             }
         } else {

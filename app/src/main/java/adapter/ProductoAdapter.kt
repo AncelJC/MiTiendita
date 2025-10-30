@@ -18,13 +18,10 @@ import java.text.NumberFormat
 import java.util.Currency
 import java.util.Locale
 
-// 1. Hereda de ListAdapter y usa ProductoDiffCallback
 class ProductoAdapter(
-    // 2. Recibe la interfaz en el constructor
     private val actionListener: OnItemActionListener
 ) : ListAdapter<Producto, ProductoAdapter.ProductoViewHolder>(ProductoDiffCallback()) {
 
-    // 3. Formato de moneda mejorado (2 decimales)
     private val formatoMoneda: NumberFormat =
         NumberFormat.getCurrencyInstance(Locale("es", "PE")).apply {
             maximumFractionDigits = 2

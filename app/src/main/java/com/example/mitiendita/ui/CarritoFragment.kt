@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mitiendita.R
 import com.example.mitiendita.dao.CarritoDAO
-import com.example.mitiendita.entity.CarritoItem
 import com.example.mitiendita.viewmodel.CarritoViewModel
 import com.google.android.material.snackbar.Snackbar
 
@@ -102,7 +101,6 @@ class CarritoFragment : Fragment() {
             return
         }
 
-        // ✅ Validar stock usando CarritoDAO
         if (!carritoDAO.validarStockDisponible(items)) {
             mostrarMensaje("Algunos productos no tienen stock suficiente")
             return

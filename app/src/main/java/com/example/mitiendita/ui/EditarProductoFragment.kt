@@ -67,7 +67,6 @@ class EditarProductoFragment : Fragment() {
         productoDAO = ProductoDAO(requireContext())
         categoriaDAO = CategoriaDAO(requireContext())
 
-        // Obtener producto desde argumentos
         producto = arguments?.getSerializable("producto") as? Producto
         producto?.let { cargarDatosProducto(it) }
 
@@ -94,7 +93,6 @@ class EditarProductoFragment : Fragment() {
         tietPrecioProdEdit.setText(p.precio.toString())
         tietStockProdEdit.setText(p.stock.toString())
 
-        // Cargar imagen del producto
         if (!p.imagen.isNullOrEmpty()) {
             try {
                 ivProductoEdit.setImageURI(Uri.parse(p.imagen))
